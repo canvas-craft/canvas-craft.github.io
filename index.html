@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset = utf-8>
+        <meta name = viewport content = 'width=device-width,initial-scale=1'>
+        <title>CanvasCraft</title>
+        <link rel = icon type = image/x-icon href = logo.ico>
+
+        <style>
+            @font-face {
+                font-family: font;
+                src: url(Tomorrow-Regular.ttf);
+            }
+
+            :root {
+                --border: #444 2px solid;
+            }
+
+            html {height: 100%}
+
+            body {
+                margin: 0;
+                font-family: font, sans-serif;
+                background-color: #000;
+                height: 100%;
+                overflow: hidden;
+                color: #fff
+            }
+
+            h1, h2, h3, h4 {
+                margin: 0;
+                color: #0fb;
+                outline: none;
+            }
+
+            .statsSection h2 {
+                margin-top: 10px;
+            }
+
+            #settingsContent {
+                overflow: scroll;
+                width: 100%;
+                height: 100%;
+                padding: 20px;
+            }
+
+            #settings {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                background-color: #000;
+                color: #fff;
+                border: var(--border);
+                border-radius: 5px;
+                width: 70%;
+                height: 70%;
+                box-shadow: 2px 6px 10px #0009;
+                transition: opacity .2s, transform .2s;
+                opacity: 0;
+                z-index: -1;
+                transform: translate(-50%, -50%) scale(.95);
+            }
+
+            #settings.visible {
+                opacity: 1;
+                transform: translate(-50%, -50%)
+            }
+
+            .contents {
+                display: flex;
+                height: 100%
+            }
+
+            .mainSection {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+                flex-shrink: 1;
+            }
+
+            .statsSection {
+                display: flex;
+                flex-direction: column;
+                flex: 1 1 0;
+                height: 100vh;
+            }
+
+            #stats, #shapes {
+                border-right: var(--border);
+                background-color: #111;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                overflow: scroll;
+            }
+
+            #stats {
+                resize: both;
+                min-width: 250px;
+                flex: 1 0 auto;
+                min-height: 50px;
+                max-height: 70vh;
+                height: 100%;
+                border-bottom: var(--border);
+            }
+
+            #shapes {
+                flex: 0 1 auto;
+                height: 100%;
+            }
+
+            #shapes .cell {
+                padding: 5px;
+                border-radius: 5px;
+            }
+
+            .topnav {
+                border-bottom: var(--border);
+                resize: vertical;
+                overflow: auto;
+                background-color: #111;
+                padding: 10px;
+                flex: 0 1 auto
+            }
+
+            #codeBox {
+                resize: none;
+                width: 100%;
+                border: none;
+                border-radius: 5px;
+                padding: 5px;
+                background-color: #000;
+                color: #fff;
+                overflow: scroll;
+                white-space: pre-wrap;
+                outline: none;
+            }
+
+            #fillColor {
+                margin: 0;
+                padding: 0;
+                width: 20px;
+                height: 20px;
+                border-radius: 0;
+                vertical-align: -2px;
+            }
+
+            button, label, input, select {
+                background-color: #000;
+                color: #fff;
+                border: var(--border);
+                border-radius: 5px;
+                padding: 5px;
+                margin-bottom: 5px;
+                font-family: font, sans-serif;
+                outline: none;
+                font-size: 15px;
+                user-select: none
+            }
+
+            option {
+                font-family: font, sans-serif
+            }
+
+            button:hover, label:hover, .cell:hover {
+                background-color: #222;
+                cursor: pointer
+            }
+
+            input {width: 100px}
+            .gap {margin-bottom: 5px}
+
+            canvas {
+                flex: 1 1 0;
+                width: 100%;
+                height: 100%;
+                background-color: #333;
+                cursor: none;
+            }
+
+            hr {
+                width: 100%
+            }
+
+            .overlay {
+                display: inline-block;
+                position: absolute;
+                font-size: 15px;
+                color: #fff;
+                bottom: 5px;
+                right: 5px;
+                display: flex;
+                align-items: center;
+                gap: 10px
+            }
+
+            .codeBoxWrite {
+                background-color: #000;
+                border: var(--border);
+                border-radius: 5px;
+                padding: 5px
+            }
+
+            .cell, .cellSelected {
+                color: #fff;
+                width: 100%;
+                cursor: pointer
+            }
+
+            .cell {
+                border: var(--border);
+                background-color: #000;
+                width: 100%;
+            }
+
+            .cellSelected {
+                border: 2px solid #0fb;
+                background-color: #000;
+            }
+
+            textarea {
+                font-size: 14px;
+                font-family: font;
+                resize: vertical;
+                background-color: #000;
+                border: none;
+                border-radius: 5px;
+                resize: none;
+                outline: none;
+                width: 100%
+            }
+
+            svg {
+                width: 10px
+            }
+
+            #fileSearch, #fileSearch2 {
+                display: none;
+            }
+
+            #errors {
+                color: #f55;
+            }
+
+            #fillValue {
+                display: inline;
+            }
+
+            #holderCol {
+                margin-right: 3px;
+            }
+
+            #closeSettings {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                background-color: #711;
+                border: #999 1px solid;
+                color: #fff;
+                width: 50px;
+            }
+
+            #closeSettings:hover {
+                background-color: #c22;
+            }
+
+            input#fast, input#slow, #outlineEnabled, #hoverOutlineEnabled, #antiAliasing, #levelExportDetails {
+                width: 15px
+            }
+
+            #levelExportContent {
+                width: 100%
+            }
+
+            #blockProperties, #defaultProperties {
+                border: var(--border);
+                border-radius: 5px;
+                margin: 10px;
+                padding: 10px;
+                outline: none;
+            }
+
+            #selectedBrush {
+                background-color: #0b8;
+                color: #000;
+            }
+
+            #shapeTypeAsWell {
+                display: inline;
+            }
+
+            .layer {
+                padding: 10px;
+                background-color: #333;
+                border-radius: 5px;
+            }
+
+            #createLayer {
+                background-color: #333;
+            }
+
+            #createLayer:hover {
+                background-color: #222;
+            }
+
+            .layerTitle {
+                margin-bottom: 10px;
+            }
+
+            * {
+                box-sizing: border-box;
+                outline: none
+            }
+        </style>
+    </head>
+    <body>
+        <div class = contents>
+            <div class = statsSection>
+                <div id = stats>
+                    No information available
+                </div>
+                <div id = shapes>
+                    <button id = createLayer onmousedown=createNewLayer(this)>Add New Layer</button>
+                </div>
+            </div>
+            <div class = mainSection>
+                <div class = topnav>
+                    <div class = gap>
+                        Width <input value = 100 max = 10000 type = number oninput = change() id = cvsWidth>
+                        Height <input value = 100 max = 10000 type = number oninput = change() id = cvsHeight>
+                    </div>
+
+                    <button onmousedown = "makeBrush(this,'block')" id = selectedBrush>Block</button>
+                    <button onmousedown = "makeBrush(this,'line')">Line</button>
+                    <button onmousedown = saveChanges()>Export</button>
+                    <label for = fileSearch>Load</label>
+                    <input type = file id = fileSearch accept = application/json onchange = loadChanges(this)>
+                    <label for = fillColor id = holderCol>
+                        <input type = color id = fillColor value = #009955 oninput = changeFillColor()>
+                        <div id = fillValue></div>
+                    </label>
+                    <button onmousedown = downloadImage()>Save as image</button>
+                    <button onmousedown = openSettings()>Settings</button>
+                    <button onmousedown = "game.x=0;game.y=0;game.scale=game.realScale;updateScreen=true">
+                        Reset navigation</button>
+                </div>
+                <canvas></canvas>
+                <div class = overlay>Zoom:<div id = zoom></div></div>
+            </div>
+        </div>
+        <div id = settings class = invisible>
+            <button id = closeSettings onmousedown = closeSettings()>&times;</button>
+            <div id = settingsContent>
+                <h1>Settings</h1><hr>
+                <p>Draw iteration speed: <input id = maxIterations type = number
+                value = 2000 onchange = 'if(this.value<2)this.value=2;maxIter=this.value'
+                oninput = 'if (this.value>10000)this.value=10000'>
+                <span style='color:#bbb'>(the speed at which
+                code is excecuted on a shape)</span></p>
+                <p><label for = outlineEnabled>
+                    <input type = checkbox id = outlineEnabled checked> Selection outline
+                </label></p>
+                <h2>Export types</h2>
+                <p><label for = fast id = labelFast>
+                <input type = radio id = fast name = options checked>
+                Faster loading, larger file [DEFAULT]</label></p>
+                <p><label for = slow id = labelSlow>
+                <input type = radio id = slow name = options>
+                Slower loading, smaller file</label></p>
+                <p><div>Rectangle code. Used for level exports. Sorted as x, y, w, h, <div id = shapeTypeAsWell></div> properties</div></p>
+                <p>Layer to export <select id = selectLayerToExport onchange = changeLayerToExport()></select>
+                <label for = levelExportDetails><input type = checkbox id =
+                levelExportDetails onchange = openSettings() checked> Include shape types</label>
+                <input id = levelExportContent readonly></p>
+                <h2>Images and shapes</h2>
+                <p>Scale final image by <input value = 1 id = scaleImage
+                oninput = scaleImageNumberCheck(this)><br>
+                Scale all shapes by <input value = 1 id = scaleShapes>
+                <button onmousedown = scaleAllShapes(scaleShapes.value,this)>Confirm</button>
+                <button onmousedown = revertAllScales(this)>Revert</button>
+                <span style=color:#dd0>WARNING: scaling shapes can result in quality loss.
+                Consider scaling the final image instead (see above)</span></p>
+                <p><label for = antiAliasing>
+                <input type = checkbox id = antiAliasing checked> Use anti-aliasing
+                to scale shapes</label></p>
+            </div>
+        </div>
+
+        <script>
+            function updateStats(elem, index) {
+                const shape = game.shapes[index]
+                const key = elem.className
+                const value = elem.value
+                shape[key] = Number(value)
+
+                // Maintain aspect ratio
+                if (key == 'w' && shape.aspectRatio) {
+                    shape.h = shape.w / shape.aspect
+                    shape.h = val(shape.h)
+                    const height = document.getElementsByClassName('h')[0]
+                    height.value = shape.h
+                }
+                else if (key == 'h' && shape.aspectRatio) {
+                    shape.w = shape.h * shape.aspect
+                    shape.w = val(shape.w)
+                    const width = document.getElementsByClassName('w')[0]
+                    width.value = shape.w
+                }
+
+                if (shape.image) shape.generateImage()
+                else if (shape.line) shape.setLineDraw()
+
+                updateScreen = true
+            }
+
+            let selectedCell = {}
+            let defaultStr = ''
+            class Shape {
+                constructor(x, y, line = false, layer = false) {
+                    if (line) brushType = 'line'
+                    this.realName = brushType
+                    this.name = brushType.charAt(0).toUpperCase() + brushType.substring(1)
+                    this.index = game.shapes.length
+                    this.origIdx = this.index
+                    if (!types[this.name]) types[this.name] = 1
+                    else types[this.name] ++
+                    this.number = types[this.name]
+
+                    this.line = false
+                    if (brushType == 'line')
+                        this.line = true
+
+                    this.x = x
+                    this.y = y
+                    this.x2 = x
+                    this.y2 = y
+                    this.w = 0
+                    this.h = 0
+                    this.saved = false
+                    this.movingHovered = false
+
+                    this.gray = false
+                    this.color = fill.value
+                    this.originalColor = this.color
+                    this.codeContent = codeOptions.default(this)
+                    changeFillColor()
+
+                    this.cell = document.createElement('input')
+                    this.cell.className = 'cell'
+                    this.cell.value = this.name + ' ' + this.number
+                    this.cell.id = this.index
+                    this.cell.realId = this.index
+                    this.cell.onmousedown = () => this.setStats()
+                    this.cell.oninput = () => this.setStats()
+
+                    if (layer) {
+                        const elem = document.getElementById(layer)
+                        elem.children[2].appendChild(this.cell)
+                    }
+                    else {
+                        if (selectedCell.id && game.shapes.length)
+                            selectedCell.parentElement.appendChild(this.cell)
+                        else activeLayer.children[2].appendChild(this.cell)
+                    }
+
+                    this.cvs = document.createElement('canvas')
+                    this.ctx = this.cvs.getContext('2d')
+                    this.cvs.width = 1
+                    this.cvs.height = 1
+
+                    this.image = false
+                    this.thick = defaultThick
+                    this.aspectRatio = false
+                    this.aspect = 0
+
+                    this.runX = 0
+                    this.runY = 0
+                    this.running = false
+
+                    this.cell.onmouseover = () => {
+                        focusOnItem = this.index
+                        updateScreen = true
+                    }
+
+                    this.properties = ''
+                    this.setStats(true)
+                    this.generateImage()
+                }
+
+                addTexturesIfAppropriate() {
+                    if (this.line)
+                        return '<div>Color <input type=color value='+this.color+
+                        ' oninput=changeColorLine('+this.index+',this)><br>'+
+                        'Thickness <input type=number value='+this.thick+
+                        ' oninput=setLineThickness(this,'+this.index+')></div>'
+
+                    let maybeImage = ''
+                    if (this.image) maybeImage = '<span><div id=newRatio>Ratio: '+
+                        this.image.width+'&times;'+this.image.height+
+                        '</div>Multiply: <input value=1 oninput=changeRatio(this,'+
+                        this.image.width+','+this.image.height+')></span>'
+
+                    return '<h2>Textures</h2>'+
+                    '<span style=color:#bbb;margin-bottom:15px>Change the texture of this shape</span>'+
+                    '<span>Save New Preset: <input id=presetName> '+
+                    '<button id=save onmousedown=savePreset()>Save</button></span>'+
+                    '<select id=codeTemplate onchange=addTemplateCode(this,'+this.index+')>'+
+                    '<option id=default>Default</option>'+
+                    '<option id=rgb>RGB</option>'+
+                    '<option id=noise>Noise</option>'+
+                    '<option id=largeNoise>Large noise</option>'+
+                    '<option id=rotated>Rotated</option>'+
+                    addedPresets+'</select>'+
+                    '<span class=codeBoxWrite>function (x, y) {'+
+                    '<textarea id=codeBox oninput=writeCode('+
+                    this.index+',this)>'+this.codeContent+'</textarea>}</span>'+
+                    '<div id=errors></div>'+
+                    '<button onmousedown=generateImageForCell(this,'+
+                    this.index+')>Run Code &#x267B;</button>'+
+                    '<label for=fileSearch2>Upload Image</label>'+
+                    '<input type=file id=fileSearch2 accept="image/*" onchange=addImage(this,'+this.index+')>'+
+                    '<button onmousedown=removeImage('+this.index+')>Remove Image</button>'+maybeImage
+                }
+
+                setStats(firstTime = false) {
+                    this.cell.realId = this.index
+
+                    selectedCell.className = 'cell'
+                    this.cell.className = 'cellSelected'
+                    selectedCell = this.cell
+
+                    if (firstTime)
+                        this.properties = defaultStr
+
+                    const change = key => {
+                        return '<span>' + key + ': <input class='+key+
+                            ' oninput="updateStats(this,'+this.index+
+                            ')" value="'+val(this[key])+'"></span>'
+                    }
+
+                    let maybeAspect = 'Lock Ratio'
+                    if (this.aspectRatio) maybeAspect = 'Unlock Ratio'
+
+                    let lineOrRect = change('w') + change('h')
+                    if (this.line) lineOrRect = change('x2') + change('y2')
+
+                    let aspectForRect = ''
+                    if (!this.line) aspectForRect =
+                        '<button onmousedown=changeAspect(this,'+this.index+')>'+maybeAspect+'</button>'
+
+                    stats.innerHTML =
+                        '<h1 oninput=renameFromStats(this,'+this.index+') contenteditable>'+
+                        this.cell.value+'</h1><hr>'+
+                        change('x')+change('y')+lineOrRect+aspectForRect+
+                        '<button onmousedown=deleteCell('+this.index+','+this.origIdx+')>Delete</button>'+
+                        '<button onmousedown=moveCell('+this.index+',-1,'+this.origIdx+')>Move Up</button>'+
+                        '<button onmousedown=moveCell('+this.index+',1,'+this.origIdx+')>Move Down</button>'+
+                        this.addTexturesIfAppropriate()+
+                        '<h2>Properties</h2>'+
+                        '<span style=color:#bbb;margin-bottom:15px>Used for level exports</span>'+
+                        this.cell.value+'\'s Properties<span style=color:#bbb>All the properties of this shape</span>'+
+                        '<div id=blockProperties contenteditable oninput=updateProp(this,'+this.index+
+                        ')>'+this.properties+'</div>'+
+                        'Default Properties<span style=color:#bbb>Shapes can start with presets</span>'+
+                        '<div id=defaultProperties contenteditable oninput="defaultStr=this.textContent">'+
+                        defaultStr+'</div>'
+
+                    if (!this.line) setCodeBoxHeight()
+                    else this.setLineDraw()
+
+                    updateScreen = true
+                }
+
+                setLineDraw() {
+                    const thick = this.thick
+                    this.cvs.width = Math.abs(Math.floor(this.x2 - this.x)) + thick
+                    this.cvs.height = Math.abs(Math.floor(this.y2 - this.y)) + thick
+                    let w = this.x2 - this.x
+                    let h = this.y2 - this.y
+
+                    this.ctx.clearRect(0, 0, w, h)
+                    this.ctx.strokeStyle = this.color
+                    this.ctx.lineWidth = thick
+                    this.ctx.beginPath()
+                    // this.ctx.moveTo(this.x, this.y)
+                    // this.ctx.lineTo(this.x2, this.y2)
+                    this.ctx.moveTo(
+                        thick / 2 - w * (.5 + Math.sign(-w) / 2),
+                        thick / 2 - h * (.5 + Math.sign(-h) / 2))
+                    this.ctx.lineTo(
+                        thick / 2 + w * (.5 + Math.sign(w) / 2),
+                        thick / 2 + h * (.5 + Math.sign(h) / 2))
+                    this.ctx.stroke()
+                }
+
+                generateImage() {
+                    if (this.line) return
+                    if (this.w > 1) this.cvs.width = Math.floor(this.w)
+                    if (this.h > 1) this.cvs.height = Math.floor(this.h)
+
+                    if (this.image) {
+                        this.ctx.drawImage(this.image, 0, 0, this.w, this.h)
+                        return
+                    }
+
+                    this.ctx.clearRect(0, 0, this.w, this.h)
+
+                    let fillFunction = (x, y) => {
+                        if ((x + y) % 10 < 4) return '#ff0'
+                        return '#000'
+                    }
+
+                    const calculateFillFunction = () => {
+                        try {
+                            const func = new Function('x', 'y', this.codeContent)
+                            fillFunction = (x, y) => {
+                                try {
+                                    return func(x, y)
+                                }
+                                catch (error) {
+                                    document.getElementById('errors').innerHTML = 'Error: ' + error.message
+                                }
+                            }
+                        }
+                        catch (error) {
+                            document.getElementById('errors').innerHTML = 'Error: ' + error.message
+                        }
+                    }
+                    const drawPixels = (X, Y) => {
+                        let iterations = 0
+                        for (this.runX = X; this.runX < this.cvs.width; this.runX ++) {
+                            for (this.runY = Y; this.runY < this.cvs.height; this.runY ++) {
+                                if (this.runX <= 0 && this.runY <= 0) calculateFillFunction()
+                                this.ctx.fillStyle = fillFunction(this.runX, this.runY)
+                                this.ctx.fillRect(this.runX, this.runY, 1, 1)
+                                Y = 0
+
+                                if (this.runY > this.cvs.height - 2 && this.runX > this.cvs.width - 2)
+                                    this.running = false
+
+                                let calc = maxIter - (processesHappeningNow - 1)
+                                if (calc < 2) calc = 2
+                                if (calc > maxIter) calc = maxIter
+
+                                iterations ++
+                                if (iterations >= calc)
+                                    return setTimeout(() => {
+                                        iterations = 0
+                                        let nextY = this.runY + 1
+                                        if (nextY > this.cvs.height - 1)
+                                            nextY = this.cvs.height - 1
+                                        drawPixels(this.runX, nextY)
+                                        updateScreen = true
+                                    }, processesHappeningNow * 10)
+                            }
+                        }
+                    }
+
+                    drawPixels(0,0)
+                }
+
+                draw() {
+                    if (this.line) {
+                        const x = .5 + Math.sign(Math.floor(this.x - this.x2)) / 2
+                        const y = .5 + Math.sign(Math.floor(this.y - this.y2)) / 2
+
+                        drawImage(
+                            this.cvs,
+                            this.x + x * (this.x2 - this.x) - this.thick / 2,
+                            this.y + y * (this.y2 - this.y) - this.thick / 2,
+                            this.cvs.width,
+                            this.cvs.height)
+                        return
+                    }
+                    drawImage(this.cvs, this.x, this.y, this.w, this.h)
+                }
+            }
+
+            function changeColorLine(index, item) {
+                const shape = game.shapes[index]
+                shape.color = item.value
+                shape.setLineDraw()
+                updateScreen = true
+            }
+
+            let defaultThick = 10
+            function setLineThickness(item, index) {
+                const shape = game.shapes[index]
+                const value = Number(item.value)
+                defaultThick = value
+                shape.thick = value
+                shape.setLineDraw()
+                updateScreen = true
+            }
+
+            function updateProp(item, index) {
+                game.shapes[index].properties = item.textContent
+            }
+
+            function renameFromStats(item, index) {
+                game.shapes[index].cell.value = item.textContent
+            }
+
+            function changeFillColor() {
+                fillDiv.innerText = hexToRGB(fill.value)
+            }
+
+            function val(num) {
+                return Math.round(num)
+            }
+
+            function changeAspect(item, index) {
+                const shape = game.shapes[index]
+
+                if (shape.aspectRatio) {
+                    item.textContent = 'Lock ratio'
+                    shape.aspectRatio = false
+                }
+                else {
+                    item.textContent = 'Unlock ratio'
+                    shape.aspectRatio = true
+                    shape.aspect = shape.w / shape.h
+                }
+            }
+
+            function changeRatio(item, x, y) {
+                const multiply = item.value
+                const div = document.getElementById('newRatio')
+                div.innerHTML = 'Ratio: '+val(x*multiply)+'&times;'+val(y*multiply)
+            }
+
+            function scaleAllShapes(number, button) {
+                button.innerText = 'Scaled!'
+                scaleShapes.value = 1
+                setTimeout(() => button.innerText = 'Confirm', 1000)
+
+                const aliasing = document.getElementById('antiAliasing').checked
+
+                for (let i = 0; i < game.shapes.length; i ++) {
+                    const shape = game.shapes[i]
+
+                    if (!shape.saved) shape.saved = {
+                        x: shape.x, y: shape.y,
+                        w: shape.w, h: shape.h,
+                        thick: shape.thick}
+
+                    shape.x *= number
+                    shape.y *= number
+                    shape.w *= number
+                    shape.h *= number
+                    shape.thick *= number
+
+                    if (aliasing) {
+                        shape.setStats()
+                        continue
+                    }
+
+                    shape.x = val(shape.x)
+                    shape.y = val(shape.y)
+                    shape.w = val(shape.w)
+                    shape.h = val(shape.h)
+                    shape.thick = val(shape.thick)
+                    shape.setStats()
+                }
+
+                updateScreen = true
+            }
+
+            function revertAllScales(button) {
+                button.innerText = 'Reverted!'
+                scaleShapes.value = 1
+                setTimeout(() => button.innerText = 'Revert', 1000)
+
+                for (let i = 0; i < game.shapes.length; i ++) {
+                    const shape = game.shapes[i]
+                    if (!shape.saved) continue
+                    shape.x = shape.saved.x
+                    shape.y = shape.saved.y
+                    shape.w = shape.saved.w
+                    shape.h = shape.saved.h
+                    shape.thick = shape.saved.thick
+                    shape.setStats()
+                }
+
+                updateScreen = true
+            }
+
+            let addedPresets = ''
+            let storePresets = []
+            function savePreset() {
+                const selections = document.getElementById('codeTemplate')
+                const name = document.getElementById('presetName').value
+                const code = document.getElementById('codeBox').value
+                const save = document.getElementById('save')
+                if (!name.replace(/\s/g,'').length) return
+                if (codeOptions[name]) {
+                    alert('Preset name already exists!')
+                    return
+                }
+
+                const newPreset = '<option id="'+name+'">'+name+'</option>'
+                addedPresets += newPreset
+                selections.innerHTML += newPreset
+                storePresets.push({name, code})
+                codeOptions[name] = (e) => {return code}
+
+                save.innerHTML = 'Done'
+                setTimeout(() => save.innerHTML = 'Save', 1000)
+            }
+
+            function moveCell(index, dir, number) {
+                let newPos = index + dir
+                if (newPos < 0) newPos = 0
+                if (newPos > game.shapes.length - 1)
+                    newPos = game.shapes.length - 1
+
+                // Move cell in shapes panel
+                let switchPositionsInArray = true
+                const cell = document.getElementById(number)
+                const parent = cell.parentElement
+                if (dir < 0) {
+                    const prev = cell.previousElementSibling
+                    if (prev) parent.insertBefore(cell, prev)
+                    else {
+                        switchPositionsInArray = false
+                        const layerNum = Number(parent.parentElement.id.split('layer')[1])
+                        const prevLayer = document.getElementById('layer' + (layerNum - 1))
+                        if (prevLayer) prevLayer.children[2].appendChild(cell)
+                    }
+                }
+                else {
+                    const next = cell.nextElementSibling
+                    if (next) parent.insertBefore(next, cell)
+                    else {
+                        switchPositionsInArray = false
+                        const layerNum = Number(parent.parentElement.id.split('layer')[1])
+                        const nextLayer = document.getElementById('layer' + (layerNum + 1))
+                        if (nextLayer) {
+                            const box = nextLayer.children[2]
+                            if (box.children.length) box.insertBefore(cell, box.firstChild)
+                            else box.appendChild(cell)
+                        }
+                    }
+                }
+
+                if (switchPositionsInArray) {
+                    const promotionShape = game.shapes[index]
+                    const discardShape = game.shapes[newPos]
+
+                    game.shapes[index] = discardShape
+                    game.shapes[newPos] = promotionShape
+
+                    promotionShape.index = newPos
+                    discardShape.index = index
+
+                    // Move selected cell
+                    discardShape.setStats()
+                    promotionShape.setStats()
+                }
+
+                updateScreen = true
+            }
+
+            function removeImage(index) {
+                const shape = game.shapes[index]
+                shape.image = false
+                shape.generateImage()
+                updateScreen = true
+            }
+
+            function addImage(item, index) {
+                if (!item.files.length) return
+                const file = item.files[0]
+                const reader = new FileReader()
+
+                reader.onload = e => {
+                    const url = e.target.result
+                    const image = new Image()
+                    image.onload = () => {
+                        const shape = game.shapes[index]
+                        shape.image = image
+                        shape.image.width = image.width
+                        shape.image.height = image.height
+                        shape.setStats()
+                        shape.generateImage()
+                        updateScreen = true
+                    }
+                    image.src = url
+                }
+
+                reader.readAsDataURL(file)
+            }
+
+            function addTemplateCode(area, index) {
+                const box = document.getElementById('codeBox')
+                const func = codeOptions[area.options[area.selectedIndex].id]
+                box.value = func(game.shapes[index])
+                writeCode(index, box)
+            }
+
+            function setCodeBoxHeight() {
+                const box = document.getElementById('codeBox')
+                box.style.height = ''
+                box.style.height = box.scrollHeight + 'px'
+            }
+
+            function writeCode(index, box) {
+                setCodeBoxHeight()
+                const shape = game.shapes[index]
+                shape.codeContent = box.value
+            }
+
+            function generateImageForCell(button, index) {
+                const shape = game.shapes[index]
+                document.getElementById('errors').innerHTML=''
+                if (!shape.image) {
+                    shape.ctx.clearRect(0, 0, shape.w, shape.h)
+                    shape.runX = 0
+                    shape.runY = -1
+                    if (shape.running) return
+                    shape.running = true
+                }
+                shape.generateImage()
+                updateScreen = true
+
+                button.innerHTML = 'Loading...'
+                setTimeout(() => button.innerHTML = 'Run Code', 300)
+            }
+
+            function deleteCell(index, number) {
+                const cell = document.getElementById(number)
+
+                if (!confirm('Do you really want to delete "'+cell.value+'"?'))
+                    return
+
+                game.shapes.splice(index, 1)
+                cell.remove()
+                stats.innerHTML = 'Please select a different shape'
+
+                for (let i = index; i < game.shapes.length; i ++)
+                    game.shapes[i].index --
+
+                updateScreen = true
+            }
+
+            function setGameScale() {
+                const ratio1 = cvs.width / cvs.height || 1
+                const ratio2 = CVS.width / CVS.height || 1
+
+                if (ratio1 > ratio2) game.scale = cvs.height / CVS.height * .8
+                else game.scale = cvs.width / CVS.width * .8
+
+                if (cvs.width > cvs.height) game.realScale = cvs.height / 100 * .8
+                else game.realScale = cvs.width / 100 * .8
+
+                zoom.textContent = Math.floor(game.scale * max)
+            }
+
+            function change() {
+                if (cvsW.value > max) cvsW.value = max
+                if (cvsH.value > max) cvsH.value = max
+
+                CVS.width = cvsW.value
+                CVS.height = cvsH.value
+
+                setGameScale()
+                updateScreen = true
+            }
+
+            function resizeCvs() {
+                cvs.width = cvs.clientWidth * devicePixelRatio
+                cvs.height = cvs.clientHeight * devicePixelRatio
+
+                setGameScale()
+                updateScreen = true
+            }
+
+            function fillRect(x, y, w, h) {
+                CTX.fillRect(x, y, w, h)
+            }
+
+            function strokeRect(x, y, w, h) {
+                CTX.strokeRect(x, y, w, h)
+            }
+
+            function drawImage(image, x, y, w, h) {
+                CTX.drawImage(image, x, y, w, h)
+            }
+
+            function rgb(r, g, b, a = 1) {
+                return 'rgb('+(r*255)+','+(g*255)+','+(b*255)+','+a+')'
+            }
+
+            function scaleImageNumberCheck(item) {
+                const bigW = item.value * cvsW.value
+                if (bigW > max) item.value = Math.floor(max / cvsW.value)
+                const bigH = item.value * cvsH.value
+                if (bigH > max) item.value = Math.floor(max / cvsH.value)
+            }
+
+            let activeLayer = {appendChild: () => {}}
+            function createNewLayer(button) {
+                if (!types.layer) types.layer = 1
+                else types.layer ++
+
+                const div = document.createElement('div')
+                const title = document.createElement('div')
+                const buttons = document.createElement('div')
+                const contents = document.createElement('div')
+
+                const shrink = document.createElement('button')
+                const hide = document.createElement('button')
+                shrink.textContent = 'Shrink'
+                hide.textContent = 'Hide'
+                buttons.appendChild(shrink)
+                buttons.appendChild(hide)
+
+                title.className = 'layerTitle'
+                title.contentEditable = true
+                title.textContent = 'Layer ' + types.layer
+                div.id = 'layer' + types.layer
+
+                div.className = 'layer'
+                buttons.className = 'layerButtons'
+                contents.className = 'layerContents'
+
+                shrink.onmousedown = () => shrinkLayer(shrink, div)
+                hide.onmousedown = () => hideLayer(hide, div)
+
+                div.appendChild(title)
+                div.appendChild(buttons)
+                div.appendChild(contents)
+
+                const option = document.createElement('option')
+                option.textContent = title.textContent
+                option.realId = div.id
+                title.oninput = () => option.textContent = title.textContent
+                title.onfocus = () => {
+                    stats.innerHTML =
+                        '<h1>'+title.textContent+'</h1>'+
+                        '<h3>Layer statistics</h3><hr>'+
+                        'Transform x: <input type=number id=layerTransformX>'+
+                        'Transform y: <input type=number id=layerTransformY>'+
+                        '<button onmousedown=transformLayer(this,"'+div.id+'")>Transform</button>'
+                }
+                layerToExport.appendChild(option)
+
+                activeLayer = div
+                shapes.insertBefore(div, button)
+                return title
+            }
+
+            function transformLayer(button, layerId) {
+                const x = document.getElementById('layerTransformX')
+                const y = document.getElementById('layerTransformY')
+                const layer = document.getElementById(layerId)
+                const arr = layer.children[2].children
+
+                for (let i = 0; i < arr.length; i ++) {
+                    const item = game.shapes[Number(arr[i].id)]
+                    item.x += Number(x.value)
+                    item.y += Number(y.value)
+                    if (item.line) {
+                        item.x2 += Number(x.value)
+                        item.y2 += Number(y.value)
+                    }
+                }
+                updateScreen = true
+
+                x.value = 0
+                y.value = 0
+                button.textContent = 'Transformed!'
+                setTimeout(() => button.textContent = 'Transform', 1000)
+            }
+
+            function changeLayerToExport() {
+                let string = ''
+
+                settingsIncludeType.textContent = ''
+                if (exportDetailsAsWell.checked)
+                    settingsIncludeType.textContent = 'type, '
+                const id = layerToExport.options[layerToExport.selectedIndex].realId
+                const layer = document.getElementById(id)
+                const arr = layer.children[2].children
+
+                for (let i = 0; i < arr.length; i ++) {
+                    const item = game.shapes[Number(arr[i].id)]
+                    let comma = ','
+                    let properties = '{}'
+                    let shapeType = ''
+
+                    if (!i) comma = ''
+                    if (item.properties.length) properties = item.properties
+                    if (exportDetailsAsWell.checked) shapeType = '"'+item.realName+'",'
+
+                    let boxMaybe = item.w+','+item.h+','
+                    if (item.line) boxMaybe = item.x2+','+item.y2+','
+
+                    string += comma+item.x+','+item.y+','+boxMaybe+shapeType+properties
+                }
+
+                levelExportCode.value = string
+            }
+
+            function shrinkLayer(button, layer) {
+                if (button.textContent == 'Shrink') {
+                    layer.children[2].style = 'display: none'
+                    button.textContent = 'Unshrink'
+                    button.style = 'background-color: #511'
+                }
+                else {
+                    layer.children[2].style = ''
+                    button.textContent = 'Shrink'
+                    button.style = ''
+                }
+            }
+
+            function hideLayer(button, layer) {
+                if (button.textContent == 'Hide') {
+                    button.textContent = 'Unhide'
+                    button.style = 'background-color: #511'
+
+                    for (let i = 0; i < layer.children[2].children.length; i ++) {
+                        const item = layer.children[2].children[i]
+                        const shape = game.shapes[item.realId]
+                        shape.gray = true
+                        shape.cell.style = 'background-color: #555'
+                        shape.setStats()
+                    }
+                }
+                else {
+                    button.textContent = 'Hide'
+                    button.style = ''
+
+                    for (let i = 0; i < layer.children[2].children.length; i ++) {
+                        const item = layer.children[2].children[i]
+                        const shape = game.shapes[item.realId]
+                        shape.gray = false
+                        shape.cell.style = ''
+                        shape.setStats()
+                    }
+                }
+            }
+
+            function makeBrush(item, str) {
+                const sel = document.getElementById('selectedBrush')
+                if (sel) sel.id = ''
+                brushType = str
+                item.id = 'selectedBrush'
+            }
+
+            function openSettings() {
+                sets.className = 'visible'
+                sets.style.zIndex = 1
+                changeLayerToExport()
+            }
+
+            function closeSettings() {
+                sets.className = 'invisible'
+                sets.ontransitionend = () => {
+                    if (sets.className == 'invisible')
+                        sets.style.zIndex = -1
+                }
+            }
+
+            function drawOnCvs() {
+                CTX.fillStyle = '#fff'
+                fillRect(0, 0, CVS.width, CVS.height)
+
+                const returnOutline = []
+                let subProcess = 0
+                for (let i = 0; i < game.shapes.length; i ++) {
+                    const t = game.shapes[i]
+
+                    if (i == focusOnItem && !t.gray)
+                        returnOutline.push({t, name: 'hover'})
+
+                    else if (t.cell.className == 'cellSelected')
+                        returnOutline.push({t, name: 'select'})
+
+                    if (t.gray) continue
+
+                    t.draw()
+
+                    if (t.runY < t.cvs.height - 1 && t.runX < t.cvs.width - 1)
+                        subProcess ++
+                }
+                processesHappeningNow = subProcess
+                return returnOutline
+            }
+
+            function loop() {
+                requestAnimationFrame(loop)
+                if (!updateScreen && !m.dragZoom && !m.dragNav) return
+                updateScreen = false
+
+                ctx.imageSmoothingEnabled = false
+                ctx.clearRect(0, 0, cvs.width, cvs.height)
+                game.time ++
+                game.scale += zoomSpeed * game.scale
+                if (game.scale < game.realScale / 50) game.scale = game.realScale / 50
+
+                game.x += navXSpeed
+                game.y += navYSpeed
+
+                const arr = drawOnCvs()
+
+                // CANVAS
+                const X = cvs.width / 2 + (game.x - CVS.width / 2) * game.scale
+                const Y = cvs.height / 2 + (game.y - CVS.height / 2) * game.scale
+                if (CVS.width && CVS.height)
+                    ctx.drawImage(CVS, X, Y, CVS.width * game.scale, CVS.height * game.scale)
+
+                m.moveHovered = false
+                for (let i = 0; i < arr.length; i ++) {
+                    const t = arr[i].t
+                    ctx.lineWidth = 3
+                    let w = t.w
+                    let h = t.h
+                    if (t.line) {
+                        w = t.x2 - t.x
+                        h = t.y2 - t.y
+                    }
+
+                    if (t.cell.className == 'cellSelected' && !unfocusAll) {
+                        let size = game.realScale * 5
+                        let XPos = X + t.x * game.scale + w * game.scale / 2
+                        let YPos = Y + t.y * game.scale - size * 1.5
+                        if (h < 0) YPos += h * game.scale
+                        if (YPos < size) YPos = size
+                        if (YPos > cvs.height - size) YPos = cvs.height - size
+                        if (XPos < size) XPos = size
+                        if (XPos > cvs.width - size) XPos = cvs.width - size
+
+                        if (m.x > XPos - size && m.x < XPos + size &&
+                            m.y > YPos - size && m.y < YPos + size)
+                            m.moveHovered = true
+
+                        ctx.beginPath()
+                        ctx.fillStyle = '#ddd'
+                        if (m.moveHovered) ctx.fillStyle = '#0fb'
+                        ctx.strokeStyle = '#333'
+                        ctx.arc(XPos, YPos, size, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.stroke()
+
+                        ctx.fillStyle = '#333'
+                        const fontSize = game.realScale * 3
+                        ctx.font = fontSize + 'px font, sans-serif'
+                        ctx.textAlign = 'center'
+                        ctx.fillText('move', XPos, YPos + fontSize / 2.7)
+                    }
+
+                    if (arr[i].name == 'hover') {
+                        ctx.strokeStyle = '#f00'
+                        if (t.cell.className == 'cellSelected')
+                            ctx.strokeStyle = '#f90'
+                    }
+                    else ctx.strokeStyle = '#0ff'
+                    if (!editWithOutline.checked)
+                        continue
+
+                    ctx.strokeRect(
+                        X + t.x * game.scale, Y + t.y * game.scale,
+                        w * game.scale, h * game.scale)
+                }
+
+                // OVERLAY
+                const zoomw = game.realScale * 15
+                const zoomh = game.realScale * 80
+                const zoomBox = {
+                    x: game.realScale * 3,
+                    y: game.realScale * 3 + zoomh / 2 - zoomw / 2
+                }
+                ctx.fillStyle = '#0009'
+                ctx.fillRect(game.realScale * 3, game.realScale * 3, zoomw, zoomh)
+                ctx.fillStyle = '#fff9'
+                if (m.x > zoomBox.x && m.y > zoomBox.y &&
+                    m.x < zoomBox.x + zoomw && m.y < zoomBox.y + zoomw ||
+                    m.dragZoom) {
+                    ctx.fillStyle = '#0fb9'
+                    if (m.press) {
+                        if (!m.dragZoom) zoomPadOft = m.y - zoomBox.y - zoomw / 2
+
+                        ctx.fillStyle = '#0fb'
+                        m.dragZoom = true
+                        zoomPadY = m.y - zoomBox.y - zoomw / 2 - zoomPadOft
+
+                        const cap = (zoomh - zoomw * 1.2) / 2
+                        if (zoomPadY < -cap) zoomPadY = -cap
+                        else if (zoomPadY > cap) zoomPadY = cap
+                    }
+                }
+                ctx.fillRect(zoomBox.x + zoomw * .1, zoomBox.y + zoomPadY, zoomw * .8, zoomw)
+
+                // NAVIGATION
+                const padSize = game.realScale * 35
+                const gap = game.realScale * 3
+                const hold = game.realScale * 13
+                const rng = game.realScale * 1.5
+                ctx.fillStyle = '#0009'
+                ctx.fillRect(gap, cvs.height - padSize - gap, padSize, padSize)
+                ctx.fillStyle = '#fff9'
+                const box = {
+                    x: gap + padSize / 2 - hold / 2,
+                    y: cvs.height - gap - padSize / 2 - hold / 2
+                }
+                if (m.x > box.x && m.y > box.y &&
+                    m.x < box.x + hold && m.y < box.y + hold ||
+                    m.dragNav) {
+                    ctx.fillStyle = '#0fb9'
+                    if (m.press) {
+                        if (!m.dragNav) {
+                            navPadXOft = m.x - box.x - hold / 2
+                            navPadYOft = m.y - box.y - hold / 2
+                        }
+
+                        ctx.fillStyle = '#0fb'
+                        m.dragNav = true
+                        navPadX = m.x - box.x - hold / 2 - navPadXOft
+                        navPadY = m.y - box.y - hold / 2 - navPadYOft
+
+                        const cap = (padSize - hold - gap) / 2
+                        if (navPadX < -cap) navPadX = -cap
+                        if (navPadX > cap) navPadX = cap
+                        if (navPadY < -cap) navPadY = -cap
+                        if (navPadY > cap) navPadY = cap
+                    }
+                }
+                ctx.fillRect(box.x + navPadX, box.y + navPadY, hold, hold)
+
+                const w = m.press ? 20 : 40
+                const o = 3
+                ctx.fillStyle = '#999'
+                ctx.fillRect(m.x - w / 2 + o, m.y - 2 + o, w, 4)
+                ctx.fillRect(m.x - 2 + o, m.y - w / 2 + o, 4, w)
+                ctx.fillStyle = '#000'
+                ctx.fillRect(m.x - w / 2, m.y - 2, w, 4)
+                ctx.fillRect(m.x - 2, m.y - w / 2, 4, w)
+
+                if (loading) {
+                    ctx.font = ((cvs.width + cvs.height) / 30) + 'px font'
+                    ctx.textAlign = 'center'
+                    ctx.fillStyle = '#000'
+                    ctx.fillText('LOADING', cvs.width / 2, cvs.height / 2)
+                }
+            }
+
+            const cvs = document.querySelector('canvas')
+            const ctx = cvs.getContext('2d')
+
+            const CVS = document.createElement('canvas')
+            const CTX = CVS.getContext('2d')
+            const cvsW = document.getElementById('cvsWidth')
+            const cvsH = document.getElementById('cvsHeight')
+            const zoom = document.getElementById('zoom')
+            const stats = document.getElementById('stats')
+            const shapes = document.getElementById('shapes')
+            const fill = document.getElementById('fillColor')
+            const fillDiv = document.getElementById('fillValue')
+            const sets = document.getElementById('settings')
+            const scaleImage = document.getElementById('scaleImage')
+            const editWithOutline = document.getElementById('outlineEnabled')
+            const setMaxIterations = document.getElementById('maxIterations')
+            const closeSettingsButton = document.getElementById('closeSettings')
+            const levelExportCode = document.getElementById('levelExportContent')
+            const exportDetailsAsWell = document.getElementById('levelExportDetails')
+            const fastExport = document.getElementById('fast')
+            const settingsIncludeType = document.getElementById('shapeTypeAsWell')
+            const newLayerButton = document.getElementById('createLayer')
+            const layerToExport = document.getElementById('selectLayerToExport')
+            let maxIter = setMaxIterations.value
+            let processesHappeningNow = 0
+            let updateScreen = true
+            let zoomSpeed = 0
+            let zoomAmt = 0
+            let zoomPadY = 0
+            let zoomPadOft = 0
+            let navPadX = 0
+            let navPadY = 0
+            let navPadXOft = 0
+            let navPadYOft = 0
+            let navXSpeed = 0
+            let navYSpeed = 0
+
+            const save = {}
+
+            function saveChanges() {
+                save.width = cvsW.value
+                save.height = cvsH.value
+                save.presets = storePresets
+                save.addedPresets = addedPresets
+                save.shapes = []
+                save.defaultString = defaultStr
+
+                save.layers = []
+                for (let i = 0; i < shapes.children.length; i ++) {
+                    if (shapes.children[i].className != 'layer') continue
+                    const layer = shapes.children[i].children
+                    save.layers.push({
+                        time: layer[2].children.length,
+                        text: layer[0].textContent})
+                }
+
+                for (let i = 0; i < game.shapes.length; i ++) {
+                    const item = game.shapes[i]
+                    const dic = {}
+
+                    dic.line = item.line
+                    dic.thick = item.thick
+                    dic.color = item.color
+                    dic.name = item.cell.value
+                    dic.code = item.codeContent
+                    dic.index = item.index
+                    dic.x = item.x
+                    dic.y = item.y
+                    dic.w = item.w
+                    dic.h = item.h
+                    dic.x2 = item.x2
+                    dic.y2 = item.y2
+                    dic.properties = item.properties
+                    dic.gray = item.gray
+
+                    dic.base64 = {image: false, url: false, fastExport: false}
+                    if (item.image) {
+                        const cv = document.createElement('canvas')
+                        const ct = cv.getContext('2d')
+                        cv.width = item.image.width
+                        cv.height = item.image.height
+                        ct.drawImage(item.image, 0, 0, cv.width, cv.height)
+                        dic.base64 = {image: true, url: cv.toDataURL(), fastExport: false}
+                    }
+
+                    else if (fastExport.checked)
+                        dic.base64 = {image: false, url: item.cvs.toDataURL(), fastExport: true}
+
+                    save.shapes.push(dic)
+                }
+
+                const data = JSON.stringify(save)
+                const file = new File([data], 'canvasCreator.json', {type: 'application/json'})
+
+                const a = document.createElement('a')
+                const url = URL.createObjectURL(file)
+                a.href = url
+                a.download = 'canvasCreator.json'
+                a.click()
+            }
+
+            let loading = false
+            function loadChanges(item) {
+                if (!item.files.length) return
+                const file = item.files[0]
+                const reader = new FileReader()
+                game.shapes = []
+                shapes.innerHTML = ''
+                shapes.appendChild(newLayerButton)
+
+                reader.onload = () => {
+                    const save = JSON.parse(reader.result)
+
+                    cvsW.value = save.width
+                    cvsH.value = save.height
+
+                    types.layer = 0
+                    for (let i = 0; i < save.layers.length; i ++)
+                        createNewLayer(newLayerButton).textContent = save.layers[i].text
+
+                    // load presets
+                    addedPresets = save.addedPresets
+                    defaultStr = save.defaultString
+
+                    for (let i = 0; i < save.presets.length; i ++) {
+                        const item = save.presets[i]
+                        codeOptions[item.name] = e => {return item.code}
+                    }
+
+                    // load shapes
+                    let perfTime = performance.now()
+                    let layerId = false
+                    const loadShapes = i => {
+                        if (game.shapes[i-1]) game.shapes[i-1].setStats()
+                        loading = false
+                        if (i >= save.shapes.length) {
+                            updateScreen = true
+                            return
+                        }
+                        loading = true
+
+                        // load layers
+                        for (let j = 0; j < save.layers.length; j ++) {
+                            const layer = save.layers[j]
+                            if (layer.time <= 0) continue
+                            layer.time --
+                            layerId = 'layer'+(j+1)
+                            break
+                        }
+
+                        const item = save.shapes[i]
+                        const shape = new Shape(item.x, item.y, item.line, layerId)
+                        shape.cell.value = item.name
+                        shape.codeContent = item.code
+                        shape.index = item.index
+                        shape.w = item.w
+                        shape.h = item.h
+                        shape.x2 = item.x2
+                        shape.y2 = item.y2
+                        shape.line = item.line
+                        shape.thick = item.thick
+                        shape.color = item.color
+                        shape.properties = item.properties
+                        shape.gray = item.gray
+
+                        if (!item.line) {
+                            const img = new Image()
+                            img.onload = () => {
+                                if (item.base64.fastExport) {
+                                    shape.cvs.width = img.width
+                                    shape.cvs.height = img.height
+                                    shape.ctx.drawImage(img, 0, 0, shape.w, shape.h)
+                                    shape.draw()
+                                }
+                                else {
+                                    shape.image = img
+                                    shape.image.width = img.width
+                                    shape.image.height = img.height
+                                    shape.generateImage()
+                                }
+                                updateScreen = true
+                            }
+                            img.src = item.base64.url
+
+                            if (!item.base64.image && !item.base64.fastExport)
+                                shape.generateImage()
+                        }
+
+                        game.shapes.push(shape)
+
+                        shape.setStats()
+                        updateScreen = true
+
+                        if (item.base64.fastExport && performance.now() - perfTime < 16 && !item.line)
+                            loadShapes(i + 1)
+                        else {
+                            setTimeout(() => loadShapes(i + 1), 16)
+                            perfTime = performance.now()
+                        }
+                    }
+                    loadShapes(0)
+
+                    change()
+                    updateScreen = true
+                }
+
+                reader.readAsText(file)
+            }
+
+            function hexToRGB(hex) {
+                return [
+                    parseInt(hex.substr(1, 2), 16),
+                    parseInt(hex.substr(3, 2), 16),
+                    parseInt(hex.substr(5, 2), 16)
+                ]
+            }
+
+            function downloadImage() {
+                const imageCvs = document.createElement('canvas')
+                const imageCtx = imageCvs.getContext('2d')
+                imageCvs.width = CVS.width * scaleImage.value
+                imageCvs.height = CVS.height * scaleImage.value
+                imageCtx.imageSmoothingEnabled = false
+                imageCtx.drawImage(CVS, 0, 0, imageCvs.width, imageCvs.height)
+
+                const url = imageCvs.toDataURL()
+                const link = document.createElement('a')
+                link.href = url
+                link.download = 'canvasCreator.png'
+                document.body.appendChild(link)
+                link.click()
+                link.remove()
+            }
+
+            const codeOptions = {
+                default: (e) => {return 'return "'+e.originalColor+'"'},
+                rgb: (e) => {
+                    const [r, g, b] = hexToRGB(e.originalColor)
+                    return 'let r = '+r+'\nlet g = '+g+'\nlet b = '+b+'\nlet a '+
+                    '= 1\nreturn "rgb("+r+","+g+","+b+","+a+")"'},
+                noise: (e) => {
+                    const [r, g, b] = hexToRGB(e.originalColor)
+                    const amt = 20
+                    return 'let r = '+r+' + Math.random() * '+amt+' - '+amt/2+'\nlet g = '+g+' + Math'+
+                    '.random() * '+amt+' - '+amt/2+'\nlet b = '+b+' + Math.random() * '+amt+' - '+amt/2+'\nlet a = 1\nreturn '+
+                    '"rgb("+r+","+g+","+b+","+a+")"'},
+                largeNoise: (e) => {
+                    const [r, g, b] = hexToRGB(e.originalColor)
+                    const amt = 40
+                    return '// Useful 1D random number generator\nfunction random(seed) {\n'+
+                    'const value = 2038074743\n'+
+                    'seed *= 15485863\n'+
+                    'return ((seed * seed * seed % value + value) % value) / value\n}\n\n'+
+                    'const noiseSize = 5\n'+
+                    'const X = Math.floor(x/noiseSize)*noiseSize\n'+
+                    'const Y = Math.floor(y/noiseSize)*noiseSize\n\n'+
+                    'let r = '+r+' + random(99+X*2+Y*5+X*Y) * '+amt+' - 10\n'+
+                    'let g = '+g+' + random(48+X*3+Y*3+X*X*Y) * '+amt+' - 10\n'+
+                    'let b = '+b+' + random(15+X*5+Y*2+X*Y*Y) * '+amt+' - 10\n'+
+                    'let a = 1\n\n'+
+                    'return "rgb("+r+","+g+","+b+","+a+")"'},
+                rotated: (e) => {
+                    const [r, g, b] = hexToRGB(e.originalColor)
+                    const amt = 40
+                    const newW = e.w / 1.7
+                    const newH = e.h / 1.7
+                    return 'let r = '+r+'\n'+
+                    'let g = '+g+'\n'+
+                    'let b = '+b+'\n'+
+                    'let a = 1\n\n'+
+                    'const xRect = '+val(newW/3)+'\n'+
+                    'const yRect = '+val(newH/3)+'\n'+
+                    'const width = '+val(newW)+'\n'+
+                    'const height = '+val(newH)+'\n'+
+                    'const angle = 2.5 // radians\n\n'+
+
+                    'const centerX = xRect + width / 2\n'+
+                    'const centerY = yRect + height / 2\n\n'+
+
+                    '// Rotate the point around the rectangle\'s center\n'+
+                    'const xRotated = (x - centerX) * Math.cos(angle) - (y - centerY) * Math.sin(angle) + centerX\n'+
+                    'const yRotated = (x - centerX) * Math.sin(angle) + (y - centerY) * Math.cos(angle) + centerY\n\n'+
+                    '// Check if the rotated point lies within the rectangle\n'+
+                    'const isInside = (xRotated >= xRect && xRotated <= xRect + width && yRotated >= yRect && yRotated <= yRect + height)\n'+
+                    'if (!isInside) a = 0\n'+
+                    'return "rgb("+r+","+g+","+b+","+a+")"'}
+            }
+
+            const game = {
+                scale: 0,
+                shapes: [],
+                time: 0,
+                realScale: 0,
+                x: 0,
+                y: 0
+            }
+            const m = {
+                press: 0, x: 0, y: 0,
+                dragging: false, moveHovered: false,
+                dragOft: {x: 0, y: 0},
+                dragZoom: false, dragNav: false}
+            const max = 3000
+
+            // Brush types dictionary
+            const types = {}
+
+            // Selected brush type
+            let brushType = 'block'
+            let focusOnItem = -1
+            let prevMousePos = {}
+            let unfocusAll = false
+
+            function setMousePos(e) {
+                m.x = (e.clientX - cvs.offsetLeft) * devicePixelRatio
+                m.y = (e.clientY - cvs.offsetTop) * devicePixelRatio
+            }
+
+            onmousemove = e => {
+                const mousePos = {
+                    x: (m.x - cvs.width / 2) / game.scale + CVS.width / 2 - game.x,
+                    y: (m.y - cvs.height / 2) / game.scale + CVS.height / 2 - game.y
+                }
+
+                if (m.press) {
+                    if (m.dragZoom)
+                        zoomSpeed = -(zoomPadY /
+                        game.realScale) * Math.abs(zoomPadY / 50) / 1e3
+
+                    else if (m.dragNav) {
+                        navXSpeed = -(navPadX / game.scale) * Math.abs(navPadX / 20) / 20
+                        navYSpeed = -(navPadY / game.scale) * Math.abs(navPadY / 20) / 20
+                    }
+
+                    else {
+                        if (m.dragging) {
+                            if (m.dragging.movingHovered) {
+                                const xD = m.dragging.x
+                                const yD = m.dragging.y
+                                m.dragging.x = val(mousePos.x - m.dragOft.x)
+                                m.dragging.y = val(mousePos.y - m.dragOft.y)
+
+                                if (m.dragging.line) {
+                                    m.dragging.x2 -= xD - m.dragging.x
+                                    m.dragging.y2 -= yD - m.dragging.y
+                                }
+                            }
+
+                            else {
+                                if (m.dragging.line) {
+                                    m.dragging.x2 = val(mousePos.x)
+                                    m.dragging.y2 = val(mousePos.y)
+                                }
+                                else {
+                                    m.dragging.w = val(mousePos.x - m.dragging.x)
+                                    m.dragging.h = val(mousePos.y - m.dragging.y)
+                                }
+                            }
+
+                            m.dragging.setStats()
+                        }
+
+                        else {
+                            if (m.moveHovered) {
+                                m.dragging = game.shapes[selectedCell.realId]
+                                m.dragging.movingHovered = true
+                                m.dragOft = {
+                                    x: mousePos.x - m.dragging.x,
+                                    y: mousePos.y - m.dragging.y}
+                            }
+
+                            else {
+                                m.dragging = new Shape(val(mousePos.x), val(mousePos.y))
+                                game.shapes.push(m.dragging)
+                            }
+                        }
+                    }
+                }
+
+                else {
+                    focusOnItem = -1
+                    for (let i = 0; i < game.shapes.length; i ++) {
+                        const shape = game.shapes[i]
+                        let x = shape.x
+                        let y = shape.y
+                        let w = shape.w
+                        let h = shape.h
+                        if (shape.line) {
+                            w = shape.x2 - shape.x
+                            h = shape.y2 - shape.y
+                        }
+                        if (w < 0) {
+                            x += w
+                            w *= -1
+                        }
+                        if (h < 0) {
+                            y += h
+                            h *= -1
+                        }
+
+                        if (!shape.gray &&
+                            mousePos.x > x && mousePos.y > y &&
+                            mousePos.x < x + w &&
+                            mousePos.y < y + h)
+                            focusOnItem = shape.index
+                    }
+                }
+
+                updateScreen = true
+                prevMousePos = {x: mousePos.x, y: mousePos.y}
+                setMousePos(e)
+            }
+            cvs.onmousedown = e => {
+                setMousePos(e)
+
+                m.press = true
+
+                if (focusOnItem >= 0) {
+                    unfocusAll = false
+                    if (m.moveHovered) return
+                    game.shapes[focusOnItem].setStats()
+                }
+                else if (!m.moveHovered) unfocusAll = true
+                updateScreen = true
+            }
+
+            function disable() {
+                m.press = false
+                m.dragZoom = false
+                m.dragNav = false
+                zoomPadY = 0
+                zoomSpeed = 0
+                navPadX = 0
+                navPadY = 0
+                navXSpeed = 0
+                navYSpeed = 0
+                updateScreen = true
+            }
+
+            onmouseleave = () => disable()
+            onmouseup = () => {
+                disable()
+
+                if (m.dragging) {
+                    if (!m.dragging.line) {
+                        let w = m.dragging.w
+                        let h = m.dragging.h
+                        if (w < 0) {
+                            m.dragging.x += w
+                            m.dragging.w *= -1
+                        }
+                        if (h < 0) {
+                            m.dragging.y += h
+                            m.dragging.h *= -1
+                        }
+                    }
+
+                    m.dragging.movingHovered = false
+                    m.dragging.setStats()
+
+                    const boxDrag = !m.dragging.line && (!val(m.dragging.w) || !val(m.dragging.h))
+                    const lineDrag = m.dragging.line && (
+                        val(m.dragging.x2) == val(m.dragging.x) ||
+                        val(m.dragging.y2) == val(m.dragging.y))
+
+                    // Remove shape if too thin
+                    if (boxDrag || lineDrag) {
+                        types[m.dragging.name] --
+
+                        const cell = document.getElementById(m.dragging.origIdx)
+                        game.shapes.splice(m.dragging.index, 1)
+                        cell.remove()
+                        for (let i = m.dragging.index; i < game.shapes.length; i ++) {
+                            game.shapes[i].index --
+                            game.shapes[i].setStats()
+                        }
+
+                        if (game.shapes.length)
+                            game.shapes[m.dragging.index - 1].setStats()
+                        else stats.innerHTML = 'No information available'
+                    }
+                }
+                m.dragging = false
+                updateScreen = true
+            }
+            onbeforeunload = e => e.preventDefault()
+            createNewLayer(newLayerButton)
+            new ResizeObserver(resizeCvs).observe(cvs)
+            resizeCvs()
+            change()
+            loop()
+        </script>
+    </body>
+</html>
