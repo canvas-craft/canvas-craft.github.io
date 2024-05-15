@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/Hope41/canvascraft/assets/87899147/32621f12-7d0c-4f26-8209-2611519887b7" width="100px" height="100px">
+    <img src="https://github.com/canvas-craft/canvas-craft.github.io/assets/87899147/fdf44bd7-146e-4c03-9e16-a7e3ae709212" width="100px" height="100px">
 </p>
 
 # <p align="center">**CanvasCraft**</p>
