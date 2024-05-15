@@ -1663,8 +1663,7 @@
                 m.x = (e.clientX - cvs.offsetLeft) * devicePixelRatio
                 m.y = (e.clientY - cvs.offsetTop) * devicePixelRatio
             }
-
-            onmousemove = e => {
+            function moveMouse(e) {
                 const mousePos = {
                     x: (m.x - cvs.width / 2) / game.scale + CVS.width / 2 - game.x,
                     y: (m.y - cvs.height / 2) / game.scale + CVS.height / 2 - game.y
@@ -1758,9 +1757,8 @@
                 prevMousePos = {x: mousePos.x, y: mousePos.y}
                 setMousePos(e)
             }
-            cvs.onmousedown = e => {
+            function downMouse(e) {
                 setMousePos(e)
-
                 m.press = true
 
                 if (focusOnItem >= 0) {
@@ -1771,24 +1769,8 @@
                 else if (!m.moveHovered) unfocusAll = true
                 updateScreen = true
             }
-
-            function disable() {
-                m.press = false
-                m.dragZoom = false
-                m.dragNav = false
-                zoomPadY = 0
-                zoomSpeed = 0
-                navPadX = 0
-                navPadY = 0
-                navXSpeed = 0
-                navYSpeed = 0
-                updateScreen = true
-            }
-
-            onmouseleave = () => disable()
-            onmouseup = () => {
+            function upMouse(e) {
                 disable()
-
                 if (m.dragging) {
                     if (!m.dragging.line) {
                         let w = m.dragging.w
@@ -1831,6 +1813,29 @@
                 m.dragging = false
                 updateScreen = true
             }
+            function disable() {
+                m.press = false
+                m.dragZoom = false
+                m.dragNav = false
+                zoomPadY = 0
+                zoomSpeed = 0
+                navPadX = 0
+                navPadY = 0
+                navXSpeed = 0
+                navYSpeed = 0
+                updateScreen = true
+            }
+
+            onpointermove = e => moveMouse(e)
+            onmousemove = e => moveMouse(e)
+
+            cvs.onpointerdown = e => downMouse(e)
+            cvs.onmousedown = e => downMouse(e)
+
+            onpointerup = e => upMouse(e)
+            onmouseup = e => upMouse(e)
+
+            onmouseleave = () => disable()
             onbeforeunload = e => e.preventDefault()
             createNewLayer(newLayerButton)
             new ResizeObserver(resizeCvs).observe(cvs)
