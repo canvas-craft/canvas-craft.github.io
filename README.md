@@ -2,10 +2,11 @@
     <img src="https://github.com/canvas-craft/canvas-craft.github.io/assets/87899147/fdf44bd7-146e-4c03-9e16-a7e3ae709212" width="100px" height="100px">
 </p>
 
-# <p align="center">**CanvasCraft**</p>
-> *<p align="center" >Where creativity and code collide.</p>*
+# <p align="center">**CanvasCraft v.1.0**</p>
+> *<p align="center" >Where craft and code collide.</p>*
 
-\
+![CanvasCraft](https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/2bf663a3-f61e-45b2-a6a1-e1545ffb3cc4)
+
 Welcome to **CanvasCraft**, the comprehensive creation tool for the web 🚀\
 CanvasCraft is a unique online tool designed to allow creators to easily make images, game levels, and entire worlds within minutes.
 
@@ -13,4 +14,14 @@ CanvasCraft is a unique online tool designed to allow creators to easily make im
 - 📱 Easily collaborate with others and share your work with the File Export feature, or taylor the UI to suit your needs.
 - 💡 Whether you're a coder, a digital artist, or are simply exploring different ways to create, CanvasCraft has been designed to bring your ideas to life.
 
+![CanvasCraft](https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/38f253af-ccab-4567-9058-92fc3e45abcb)
+
 This project was initially created for the purpose of building complex game worlds, but has grown to give an advantage to creators of many skill levels. Let your imagination go wild! 💥
+
+***
+Being the first release, CanvasCraft still has a few minor glitches. If you have found one, please raise an issue on this repository.
+
+## Plans For v.1.1
+- Improved layer usability and bug fixes
+- More customisable image cropping feature
+- A new pixel-pen that makes drawing on the canvas easier
