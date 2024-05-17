@@ -21,7 +21,7 @@ This project was initially created for the purpose of building complex game worl
 ***
 Being the first release, CanvasCraft still has a few minor glitches. If you have found one, please raise an issue on this repository.
 
-## Plans For v.1.1
+## Plans For v1.0.1
 - Improved layer usability and bug fixes
 - More customisable image cropping feature
 - A new pixel-pen that makes drawing on the canvas easier
