@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset = utf-8>
-        <meta name = viewport content = 'width=device-width,initial-scale=1'>
+        <meta name = viewport content = 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'>
         <title>CanvasCraft</title>
         <link rel = icon type = image/x-icon href = logo.ico>
 
@@ -24,7 +24,7 @@
                 background-color: #000;
                 height: 100%;
                 overflow: hidden;
-                color: #fff
+                color: #fff;
             }
 
             h1, h2, h3, h4 {
@@ -68,7 +68,7 @@
 
             .contents {
                 display: flex;
-                height: 100%
+                height: 100%;
             }
 
             .mainSection {
@@ -310,7 +310,7 @@
 
             * {
                 box-sizing: border-box;
-                outline: none
+                outline: none;
             }
         </style>
     </head>
@@ -426,6 +426,7 @@
                     if (!types[this.name]) types[this.name] = 1
                     else types[this.name] ++
                     this.number = types[this.name]
+                    this.initGen = true
 
                     this.line = false
                     if (brushType == 'line')
@@ -439,6 +440,8 @@
                     this.h = 0
                     this.saved = false
                     this.movingHovered = false
+
+                    this.trim = {x: 0, y: 0, s: 1}
 
                     this.gray = false
                     this.color = fill.value
@@ -459,7 +462,7 @@
                         elem.children[2].appendChild(this.cell)
                     }
                     else {
-                        if (selectedCell.id && game.shapes.length)
+                        if (selectedCell.id && game.shapes.length && activeLayer.children[2].children.length)
                             selectedCell.parentElement.appendChild(this.cell)
                         else activeLayer.children[2].appendChild(this.cell)
                     }
@@ -497,9 +500,12 @@
 
                     let maybeImage = ''
                     if (this.image) maybeImage = '<span><div id=newRatio>Ratio: '+
-                        this.image.width+'&times;'+this.image.height+
+                        this.image.width+' &times; '+this.image.height+
                         '</div>Multiply: <input value=1 oninput=changeRatio(this,'+
-                        this.image.width+','+this.image.height+')></span>'
+                        this.image.width+','+this.image.height+')></span>'+
+                        '<span>Offset x: <input type=number oninput=changeTrim(this,'+this.index+',"y") value="'+this.trim.x+'"></span>'+
+                        '<span>Offset y: <input type=number oninput=changeTrim(this,'+this.index+',"x") value="'+this.trim.y+'"></span>'+
+                        '<span>Offset scale: <input type=number oninput=changeTrim(this,'+this.index+',"s") value="'+this.trim.s+'"></span>'
 
                     return '<h2>Textures</h2>'+
                     '<span style=color:#bbb;margin-bottom:15px>Change the texture of this shape</span>'+
@@ -509,9 +515,10 @@
                     '<option id=default>Default</option>'+
                     '<option id=rgb>RGB</option>'+
                     '<option id=noise>Noise</option>'+
-                    '<option id=largeNoise>Large noise</option>'+
+                    '<option id=largenoise>Large noise</option>'+
                     '<option id=rotated>Rotated</option>'+
                     addedPresets+'</select>'+
+                    '<button onmousedown=savePresetAsDefault(this)>Save active preset as default</button>'+
                     '<span class=codeBoxWrite>function (x, y) {'+
                     '<textarea id=codeBox oninput=writeCode('+
                     this.index+',this)>'+this.codeContent+'</textarea>}</span>'+
@@ -566,7 +573,14 @@
                         '<div id=defaultProperties contenteditable oninput="defaultStr=this.textContent">'+
                         defaultStr+'</div>'
 
-                    if (!this.line) setCodeBoxHeight()
+                    if (!this.line) {
+                        if (!firstTime) {
+                            const special = document.getElementById('codeTemplate')
+                            special.selectedIndex = defaultPreset
+                            addTemplateCode(special, this.index)
+                        }
+                        setCodeBoxHeight()
+                    }
                     else this.setLineDraw()
 
                     updateScreen = true
@@ -583,8 +597,6 @@
                     this.ctx.strokeStyle = this.color
                     this.ctx.lineWidth = thick
                     this.ctx.beginPath()
-                    // this.ctx.moveTo(this.x, this.y)
-                    // this.ctx.lineTo(this.x2, this.y2)
                     this.ctx.moveTo(
                         thick / 2 - w * (.5 + Math.sign(-w) / 2),
                         thick / 2 - h * (.5 + Math.sign(-h) / 2))
@@ -594,31 +606,42 @@
                     this.ctx.stroke()
                 }
 
-                generateImage() {
+                generateImage(init) {
                     if (this.line) return
                     if (this.w > 1) this.cvs.width = Math.floor(this.w)
                     if (this.h > 1) this.cvs.height = Math.floor(this.h)
 
                     if (this.image) {
-                        this.ctx.drawImage(this.image, 0, 0, this.w, this.h)
+                        const scaleX = (this.trim.s * this.w) / this.w
+                        const scaleY = (this.trim.s * this.h) / this.h
+                        const newX = -(this.w * this.trim.x) * scaleX
+                        const newY = -(this.h * this.trim.y) * scaleY
+
+                        this.ctx.drawImage(
+                            this.image, newX, newY,
+                            this.w * scaleX, this.h * scaleY)
                         return
                     }
 
                     this.ctx.clearRect(0, 0, this.w, this.h)
+                    if (init) this.initGen = false
 
-                    let fillFunction = (x, y) => {
+                    const errorFill = (x, y) => {
                         if ((x + y) % 10 < 4) return '#ff0'
                         return '#000'
                     }
 
+                    let fillFunction = (x, y) => {return errorFill(x, y)}
+
                     const calculateFillFunction = () => {
                         try {
-                            const func = new Function('x', 'y', this.codeContent)
+                            let func = new Function('x', 'y', this.codeContent)
                             fillFunction = (x, y) => {
                                 try {
                                     return func(x, y)
                                 }
                                 catch (error) {
+                                    func = (x, y) => {return errorFill(x, y)}
                                     document.getElementById('errors').innerHTML = 'Error: ' + error.message
                                 }
                             }
@@ -675,6 +698,24 @@
                     }
                     drawImage(this.cvs, this.x, this.y, this.w, this.h)
                 }
+            }
+
+            function changeTrim(input, index, name) {
+                const shape = game.shapes[index]
+                shape.trim[name] = Number(input.value)
+                shape.generateImage()
+                updateScreen = true
+            }
+
+            let defaultPreset = 0
+            function savePresetAsDefault(button) {
+                const special = document.getElementById('codeTemplate')
+
+                button.textContent = 'Saved!'
+                setTimeout(() => button.textContent = 'Save active preset as default', 1000)
+
+                const select = document.getElementById('codeTemplate')
+                defaultPreset = select.selectedIndex
             }
 
             function changeColorLine(index, item) {
@@ -805,7 +846,7 @@
                 storePresets.push({name, code})
                 codeOptions[name] = (e) => {return code}
 
-                save.innerHTML = 'Done'
+                save.innerHTML = 'Saved!'
                 setTimeout(() => save.innerHTML = 'Save', 1000)
             }
 
@@ -1043,12 +1084,56 @@
                         'Transform x: <input type=number id=layerTransformX>'+
                         'Transform y: <input type=number id=layerTransformY>'+
                         '<button onmousedown=transformLayer(this,"'+div.id+'")>Transform</button>'
+                    const upButton = document.createElement('button')
+                    const downButton = document.createElement('button')
+                    upButton.onmousedown = () => moveLayer(-1, div.id)
+                    downButton.onmousedown = () => moveLayer(1, div.id)
+                    upButton.textContent = 'Move Up'
+                    downButton.textContent = 'Move Down'
+                    stats.appendChild(upButton)
+                    stats.appendChild(downButton)
                 }
                 layerToExport.appendChild(option)
 
                 activeLayer = div
                 shapes.insertBefore(div, button)
                 return title
+            }
+
+            function moveLayer(dir, layerId) {
+                const layer = document.getElementById(layerId)
+                const arr = layer.children[2].children
+
+                if (dir < 0) {
+                    const prev = layer.previousElementSibling
+                    if (prev && prev.className == 'layer') shapes.insertBefore(layer, prev)
+                }
+                else {
+                    const next = layer.nextElementSibling
+                    if (next && next.className == 'layer') shapes.insertBefore(next, layer)
+                }
+
+                reCalcShapes()
+
+                updateScreen = true
+            }
+
+            function reCalcShapes() {
+                const gameShapes = []
+                let currIndex = 0
+                for (let i = 0; i < shapes.children.length; i ++) {
+                    const lay = shapes.children[i]
+                    if (lay.className != 'layer') continue
+                    for (let j = 0; j < lay.children[2].children.length; j ++) {
+                        const cell = lay.children[2].children[j]
+                        const shape = game.shapes[Number(cell.realId)]
+                        shape.index = currIndex
+                        shape.setStats()
+                        gameShapes.push(shape)
+                        currIndex ++
+                    }
+                }
+                game.shapes = gameShapes
             }
 
             function transformLayer(button, layerId) {
@@ -1192,6 +1277,7 @@
 
             function loop() {
                 requestAnimationFrame(loop)
+
                 if (!updateScreen && !m.dragZoom && !m.dragNav) return
                 updateScreen = false
 
@@ -1536,6 +1622,7 @@
                         }
 
                         game.shapes.push(shape)
+                        reCalcShapes()
 
                         shape.setStats()
                         updateScreen = true
@@ -1593,7 +1680,7 @@
                     return 'let r = '+r+' + Math.random() * '+amt+' - '+amt/2+'\nlet g = '+g+' + Math'+
                     '.random() * '+amt+' - '+amt/2+'\nlet b = '+b+' + Math.random() * '+amt+' - '+amt/2+'\nlet a = 1\nreturn '+
                     '"rgb("+r+","+g+","+b+","+a+")"'},
-                largeNoise: (e) => {
+                largenoise: (e) => {
                     const [r, g, b] = hexToRGB(e.originalColor)
                     const amt = 40
                     return '// Useful 1D random number generator\nfunction random(seed) {\n'+
@@ -1672,11 +1759,11 @@
                 if (m.press) {
                     if (m.dragZoom)
                         zoomSpeed = -(zoomPadY /
-                        game.realScale) * Math.abs(zoomPadY / 50) / 1e3
+                        game.realScale) * Math.abs(zoomPadY / 50) / 5e3
 
                     else if (m.dragNav) {
-                        navXSpeed = -(navPadX / game.scale) * Math.abs(navPadX / 20) / 20
-                        navYSpeed = -(navPadY / game.scale) * Math.abs(navPadY / 20) / 20
+                        navXSpeed = -(navPadX / game.scale) * Math.abs(navPadX / 20) / 40
+                        navYSpeed = -(navPadY / game.scale) * Math.abs(navPadY / 20) / 40
                     }
 
                     else {
@@ -1719,6 +1806,7 @@
                             else {
                                 m.dragging = new Shape(val(mousePos.x), val(mousePos.y))
                                 game.shapes.push(m.dragging)
+                                reCalcShapes()
                             }
                         }
                     }
@@ -1748,8 +1836,14 @@
                         if (!shape.gray &&
                             mousePos.x > x && mousePos.y > y &&
                             mousePos.x < x + w &&
-                            mousePos.y < y + h)
-                            focusOnItem = shape.index
+                            mousePos.y < y + h) {
+
+                            let onTheRightLayer = true
+                            if (selectedCell.parentElement && selectedCell.parentElement.parentElement.id != shape.cell.parentElement.parentElement.id)
+                                onTheRightLayer = false
+
+                            if (onTheRightLayer) focusOnItem = shape.index
+                        }
                     }
                 }
 
@@ -1809,6 +1903,9 @@
                             game.shapes[m.dragging.index - 1].setStats()
                         else stats.innerHTML = 'No information available'
                     }
+
+                    if (!m.dragging.line && defaultPreset > 0 && m.dragging.initGen)
+                        m.dragging.generateImage(true)
                 }
                 m.dragging = false
                 updateScreen = true
@@ -1826,8 +1923,8 @@
                 updateScreen = true
             }
 
-            onpointermove = e => moveMouse(e)
-            onmousemove = e => moveMouse(e)
+            cvs.onpointermove = e => moveMouse(e)
+            cvs.onmousemove = e => moveMouse(e)
 
             cvs.onpointerdown = e => downMouse(e)
             cvs.onmousedown = e => downMouse(e)
