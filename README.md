@@ -2,7 +2,7 @@
     <img src="https://github.com/canvas-craft/canvas-craft.github.io/assets/87899147/fdf44bd7-146e-4c03-9e16-a7e3ae709212" width="100px" height="100px">
 </p>
 
-# <p align="center">**CanvasCraft v.1.0**</p>
+# <p align="center">**CanvasCraft v1.0.0**</p>
 > *<p align="center" >Where craft and code collide.</p>*
 
 ![CanvasCraft](https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/2bf663a3-f61e-45b2-a6a1-e1545ffb3cc4)
