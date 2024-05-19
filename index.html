@@ -440,6 +440,7 @@
                     this.h = 0
                     this.saved = false
                     this.movingHovered = false
+                    this.setDefaultPreset = false
 
                     this.trim = {x: 0, y: 0, s: 1}
 
@@ -574,7 +575,8 @@
                         defaultStr+'</div>'
 
                     if (!this.line) {
-                        if (!firstTime) {
+                        if (!firstTime && !this.setDefaultPreset) {
+                            this.setDefaultPreset = true
                             const special = document.getElementById('codeTemplate')
                             special.selectedIndex = defaultPreset
                             addTemplateCode(special, this.index)
