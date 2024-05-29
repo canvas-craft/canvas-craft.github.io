@@ -19,9 +19,5 @@ CanvasCraft is a unique online tool designed to allow creators to easily make im
 This project was initially created for the purpose of building complex game worlds, but has grown to give an advantage to creators of many skill levels. Let your imagination go wild! 💥
 
 ***
-Being the first release, CanvasCraft still has a few minor glitches. If you have found one, please raise an issue on this repository.
 
-## Plans For v1.0.1
-- Improved layer usability and bug fixes
-- More customisable image cropping feature
-- A new pixel-pen that makes drawing on the canvas easier
+Being an early tool, CanvasCraft still has a few minor glitches. If you have found one, please raise an issue or contact me at [hello@joachimford.uk](mailto:hello@joachimford.uk). If you want to go the extra mile, feel free to set up a pull request!
