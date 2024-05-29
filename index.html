@@ -33,6 +33,75 @@
                 outline: none;
             }
 
+            .intro {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: #111;
+                opacity: 1;
+                z-index: 1;
+                transition: 1s ease-in-out, z-index 1.5s ease-in-out;
+                transition-delay: .3s;
+                cursor: pointer;
+                text-align: center;
+            }
+            .intro.ready {
+                opacity: 0;
+                z-index: -1
+            }
+
+            .intro.ready + #introButtons {
+                right: -150px
+            }
+
+            .intro img {
+                display: block;
+                margin: auto;
+                transition: 1s cubic-bezier(.5,0,.3,1);
+                transition-delay: .3s
+            }
+
+            .intro.ready img {
+                transform: scale(1.2)
+            }
+
+            #enterButton {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                font-size: 3vh;
+                width: 50vh;
+                transform: translate(-50%, -50%);
+            }
+
+            #introButtons {
+                transition: .5s cubic-bezier(.68,0,.7,.96);
+                z-index: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                position: absolute;
+                bottom: 5px;
+                right: 5px;
+                align-items: flex-end;
+            }
+
+            #introButtons button {
+                font-size: 18px;
+                padding: 10px;
+                background-color: #023;
+                color: #0fb;
+                width: 150px;
+                transition: .2s cubic-bezier(.29,1.91,.55,1.03)
+            }
+
+            #introButtons button:hover {
+                margin-right: 10px;
+                background-color: #134;
+            }
+
             .statsSection h2 {
                 margin-top: 10px;
             }
@@ -308,6 +377,28 @@
                 margin-bottom: 10px;
             }
 
+            .changelog {
+                z-index: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                position: absolute;
+                max-width: 300px;
+                overflow-x: hidden;
+                padding: 20px;
+                max-height: 100vh;
+                overflow-y: scroll;
+                transition: .3s cubic-bezier(.27,1.38,.66,1.07);
+                background-color: #000;
+                border-right: var(--border);
+                border-radius: 5px;
+                transform: translateX(-100%)
+            }
+
+            .changelog.view {
+                transform: translateX(0)
+            }
+
             * {
                 box-sizing: border-box;
                 outline: none;
@@ -315,6 +406,36 @@
         </style>
     </head>
     <body>
+        <div class = intro onmousedown = enterCanvasCraft(this)>
+            <div id = enterButton>
+                <img src = logo.svg>
+                <h1>CanvasCraft</h1>
+                <h3>v1.0.1</h3>
+            </div>
+        </div>
+
+        <div id = introButtons>
+            <button onmousedown = addChangeLog()>Check out the changelog</button>
+            <a href = https://github.com/canvas-craft/canvas-craft.github.io target = _blank>
+                <button>Star it on GitHub</button>
+            </a>
+            <a href = https://github.com/canvas-craft/canvas-craft.github.io/issues/new target = _blank>
+                <button>Report a bug</button>
+            </a>
+            <a href = https://joachimford.uk target = _blank>
+                <button>Meet the developer</button>
+            </a>
+        </div>
+
+        <div class = changelog>
+            <h1>30.05.2024</h1>
+            <span>&bull; Added splash screen</span>
+            <span>&bull; Fixed glitch when loading files</span>
+            <span>&bull; Saving a preset as default now works</span>
+            <h1>22.05.2024</h1>
+            <span>&bull; Released CanvasCraft v1.0.0!</span>
+        </div>
+
         <div class = contents>
             <div class = statsSection>
                 <div id = stats>
@@ -388,6 +509,18 @@
         </div>
 
         <script>
+            const changelog = document.getElementsByClassName('changelog')[0]
+
+            function enterCanvasCraft(div) {
+                div.className += ' ready'
+                if (changelog && changelog.classList[1] == 'view')
+                    changelog.classList.toggle('view')
+            }
+
+            function addChangeLog() {
+                if (changelog) changelog.classList.toggle('view')
+            }
+
             function updateStats(elem, index) {
                 const shape = game.shapes[index]
                 const key = elem.className
@@ -715,9 +848,7 @@
 
                 button.textContent = 'Saved!'
                 setTimeout(() => button.textContent = 'Save active preset as default', 1000)
-
-                const select = document.getElementById('codeTemplate')
-                defaultPreset = select.selectedIndex
+                defaultPreset = special.selectedIndex
             }
 
             function changeColorLine(index, item) {
@@ -1625,10 +1756,9 @@
                                 shape.generateImage()
                         }
 
+                        shape.setDefaultPreset = true
                         game.shapes.push(shape)
-                        reCalcShapes()
 
-                        shape.setStats()
                         updateScreen = true
 
                         if (item.base64.fastExport && performance.now() - perfTime < 16 && !item.line)
@@ -1937,7 +2067,6 @@
             onmouseup = e => upMouse(e)
 
             onmouseleave = () => disable()
-            onbeforeunload = e => e.preventDefault()
             createNewLayer(newLayerButton)
             new ResizeObserver(resizeCvs).observe(cvs)
             resizeCvs()
