@@ -244,7 +244,7 @@
                 flex: 1 1 0;
                 width: 100%;
                 height: 100%;
-                background-color: #333;
+                background-color: #222;
                 cursor: none;
             }
 
@@ -399,6 +399,10 @@
                 transform: translateX(0)
             }
 
+            select {
+                width: 100%
+            }
+
             * {
                 box-sizing: border-box;
                 outline: none;
@@ -410,7 +414,7 @@
             <div id = enterButton>
                 <img src = logo.svg>
                 <h1>CanvasCraft</h1>
-                <h3>v1.0.1</h3>
+                <h3>v1.0.6</h3>
             </div>
         </div>
 
@@ -429,10 +433,18 @@
 
         <div class = changelog>
             <h1>30.05.2024</h1>
+            <h3>v1.0.6</h3>
+            <span>&bull; New logo!</span>
+            <span>&bull; Fixed layering inconsistencies</span>
+            <span>&bull; A localised remix will now be created when you edit a preset
+            </span>
+            <h1>29.05.2024</h1>
+            <h3>v1.0.3</h3>
             <span>&bull; Added splash screen</span>
             <span>&bull; Fixed glitch when loading files</span>
             <span>&bull; Saving a preset as default now works</span>
             <h1>22.05.2024</h1>
+            <h3>v1.0.0</h3>
             <span>&bull; Released CanvasCraft v1.0.0!</span>
         </div>
 
@@ -458,13 +470,12 @@
                     <label for = fileSearch>Load</label>
                     <input type = file id = fileSearch accept = application/json onchange = loadChanges(this)>
                     <label for = fillColor id = holderCol>
-                        <input type = color id = fillColor value = #009955 oninput = changeFillColor()>
+                        <input type = color id = fillColor value = #000000 oninput = changeFillColor()>
                         <div id = fillValue></div>
                     </label>
                     <button onmousedown = downloadImage()>Save as image</button>
                     <button onmousedown = openSettings()>Settings</button>
-                    <button onmousedown = "game.x=0;game.y=0;game.scale=game.realScale;updateScreen=true">
-                        Reset navigation</button>
+                    <button onmousedown = "game.x=0;game.y=0;game.scale=game.realScale;updateScreen=true">Recenter</button>
                 </div>
                 <canvas></canvas>
                 <div class = overlay>Zoom:<div id = zoom></div></div>
@@ -621,6 +632,8 @@
                     }
 
                     this.properties = ''
+                    this.localPresets = ''
+                    this.localPresetContent = {}
                     this.setStats(true)
                     this.generateImage()
                 }
@@ -651,6 +664,7 @@
                     '<option id=noise>Noise</option>'+
                     '<option id=largenoise>Large noise</option>'+
                     '<option id=rotated>Rotated</option>'+
+                    this.localPresets+
                     addedPresets+'</select>'+
                     '<button onmousedown=savePresetAsDefault(this)>Save active preset as default</button>'+
                     '<span class=codeBoxWrite>function (x, y) {'+
@@ -690,6 +704,16 @@
                     if (!this.line) aspectForRect =
                         '<button onmousedown=changeAspect(this,'+this.index+')>'+maybeAspect+'</button>'
 
+                    let allLayers = ''
+                    for (let i = 0; i < shapes.children.length; i ++) {
+                        const layer = shapes.children[i]
+                        if (layer.className != 'layer') continue
+
+                        let selected = ''
+                        if (this.cell.parentElement.parentElement.id == layer.id) selected = 'selected'
+                        allLayers += '<option id="'+layer.id+'L" '+selected+'>'+layer.children[0].textContent+'</option>'
+                    }
+
                     stats.innerHTML =
                         '<h1 oninput=renameFromStats(this,'+this.index+') contenteditable>'+
                         this.cell.value+'</h1><hr>'+
@@ -697,6 +721,7 @@
                         '<button onmousedown=deleteCell('+this.index+','+this.origIdx+')>Delete</button>'+
                         '<button onmousedown=moveCell('+this.index+',-1,'+this.origIdx+')>Move Up</button>'+
                         '<button onmousedown=moveCell('+this.index+',1,'+this.origIdx+')>Move Down</button>'+
+                        '<span>Layer: <select id=currentLayer>'+allLayers+'</select></span>'+
                         this.addTexturesIfAppropriate()+
                         '<h2>Properties</h2>'+
                         '<span style=color:#bbb;margin-bottom:15px>Used for level exports</span>'+
@@ -717,6 +742,15 @@
                         setCodeBoxHeight()
                     }
                     else this.setLineDraw()
+
+                    const currentLayer = document.getElementById('currentLayer')
+                    currentLayer.onchange = () => {
+                        const layerName = currentLayer.options[currentLayer.selectedIndex].id
+                        const layer = document.getElementById(layerName.slice(0, -1))
+                        const cell = document.getElementById(this.origIdx)
+                        layer.children[2].appendChild(cell)
+                        reCalcShapes()
+                    }
 
                     updateScreen = true
                 }
@@ -968,7 +1002,8 @@
                 const code = document.getElementById('codeBox').value
                 const save = document.getElementById('save')
                 if (!name.replace(/\s/g,'').length) return
-                if (codeOptions[name]) {
+                if (codeOptions[name] || name.includes('Remix')) {
+                    document.getElementById('presetName').value = ''
                     alert('Preset name already exists!')
                     return
                 }
@@ -996,26 +1031,12 @@
                 if (dir < 0) {
                     const prev = cell.previousElementSibling
                     if (prev) parent.insertBefore(cell, prev)
-                    else {
-                        switchPositionsInArray = false
-                        const layerNum = Number(parent.parentElement.id.split('layer')[1])
-                        const prevLayer = document.getElementById('layer' + (layerNum - 1))
-                        if (prevLayer) prevLayer.children[2].appendChild(cell)
-                    }
+                    else switchPositionsInArray = false
                 }
                 else {
                     const next = cell.nextElementSibling
                     if (next) parent.insertBefore(next, cell)
-                    else {
-                        switchPositionsInArray = false
-                        const layerNum = Number(parent.parentElement.id.split('layer')[1])
-                        const nextLayer = document.getElementById('layer' + (layerNum + 1))
-                        if (nextLayer) {
-                            const box = nextLayer.children[2]
-                            if (box.children.length) box.insertBefore(cell, box.firstChild)
-                            else box.appendChild(cell)
-                        }
-                    }
+                    else switchPositionsInArray = false
                 }
 
                 if (switchPositionsInArray) {
@@ -1068,9 +1089,12 @@
 
             function addTemplateCode(area, index) {
                 const box = document.getElementById('codeBox')
-                const func = codeOptions[area.options[area.selectedIndex].id]
-                box.value = func(game.shapes[index])
-                writeCode(index, box)
+                const shape = game.shapes[index]
+                const id = area.options[area.selectedIndex].id
+                const func = codeOptions[id]
+                if (func) box.value = func(game.shapes[index])
+                else box.value = shape.localPresetContent[id]
+                writeCode(index, box, true)
             }
 
             function setCodeBoxHeight() {
@@ -1079,10 +1103,22 @@
                 box.style.height = box.scrollHeight + 'px'
             }
 
-            function writeCode(index, box) {
+            function writeCode(index, box, templateCode = false) {
                 setCodeBoxHeight()
                 const shape = game.shapes[index]
                 shape.codeContent = box.value
+
+                if (!templateCode) {
+                    const optionsList = document.getElementById('codeTemplate')
+                    const item = optionsList.options[optionsList.selectedIndex]
+
+                    const str = '<option id="'+item.id+'Remix" selected>'+item.text+' - remix</option>'
+                    if (!shape.localPresetContent[item.id] && !item.id.includes('Remix')) {
+                        optionsList.innerHTML += str
+                        shape.localPresets += str
+                    }
+                    shape.localPresetContent[item.id] = shape.codeContent
+                }
             }
 
             function generateImageForCell(button, index) {
@@ -1641,6 +1677,8 @@
                     dic.y2 = item.y2
                     dic.properties = item.properties
                     dic.gray = item.gray
+                    dic.localPresets = item.localPresets
+                    dic.localPresetContent = item.localPresetContent
 
                     dic.base64 = {image: false, url: false, fastExport: false}
                     if (item.image) {
@@ -1732,6 +1770,8 @@
                         shape.originalColor = item.originalColor
                         shape.properties = item.properties
                         shape.gray = item.gray
+                        shape.localPresets = item.localPresets
+                        shape.localPresetContent = item.localPresetContent
 
                         if (!item.line) {
                             const img = new Image()
