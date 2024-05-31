@@ -414,7 +414,7 @@
             <div id = enterButton>
                 <img src = logos/logo.svg>
                 <h1>CanvasCraft</h1>
-                <h3>v1.0.6</h3>
+                <h3>v1.0.9</h3>
             </div>
         </div>
 
@@ -432,12 +432,16 @@
         </div>
 
         <div class = changelog>
+            <h1>31.05.2024</h1>
+            <h3>v1.0.9</h3>
+            <span>&bull; Presets will now save correctly</span>
+            <span>&bull; Minor layout enhancements</span>
+            <span>&bull; Improved logo</span>
             <h1>30.05.2024</h1>
             <h3>v1.0.6</h3>
             <span>&bull; New logo!</span>
             <span>&bull; Fixed layering inconsistencies</span>
-            <span>&bull; A localised remix will now be created when you edit a preset
-            </span>
+            <span>&bull; A localised remix will now be created when you edit a preset</span>
             <h1>29.05.2024</h1>
             <h3>v1.0.3</h3>
             <span>&bull; Added splash screen</span>
@@ -470,7 +474,7 @@
                     <label for = fileSearch>Load</label>
                     <input type = file id = fileSearch accept = application/json onchange = loadChanges(this)>
                     <label for = fillColor id = holderCol>
-                        <input type = color id = fillColor value = #000000 oninput = changeFillColor()>
+                        <input type = color id = fillColor value = #0066ff oninput = changeFillColor()>
                         <div id = fillValue></div>
                     </label>
                     <button onmousedown = downloadImage()>Save as image</button>
@@ -672,7 +676,7 @@
                     this.index+',this)>'+this.codeContent+'</textarea>}</span>'+
                     '<div id=errors></div>'+
                     '<button onmousedown=generateImageForCell(this,'+
-                    this.index+')>Run Code &#x267B;</button>'+
+                    this.index+')>Run Code ▶️</button>'+
                     '<label for=fileSearch2>Upload Image</label>'+
                     '<input type=file id=fileSearch2 accept="image/*" onchange=addImage(this,'+this.index+')>'+
                     '<button onmousedown=removeImage('+this.index+')>Remove Image</button>'+maybeImage
@@ -1146,7 +1150,7 @@
                 updateScreen = true
 
                 button.innerHTML = 'Loading...'
-                setTimeout(() => button.innerHTML = 'Run Code', 300)
+                setTimeout(() => button.innerHTML = 'Run Code ▶️', 300)
             }
 
             function deleteCell(index, number) {
