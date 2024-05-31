@@ -736,7 +736,11 @@
                         if (!firstTime && !this.setDefaultPreset) {
                             this.setDefaultPreset = true
                             const special = document.getElementById('codeTemplate')
-                            special.selectedIndex = defaultPreset
+                            if (defaultPreset.length) {
+                                const option = document.getElementById(defaultPreset)
+                                option.selected = true
+                            }
+                            else special.selectedIndex = 0
                             addTemplateCode(special, this.index)
                         }
                         setCodeBoxHeight()
@@ -876,13 +880,20 @@
                 updateScreen = true
             }
 
-            let defaultPreset = 0
+            let defaultPreset = ''
             function savePresetAsDefault(button) {
                 const special = document.getElementById('codeTemplate')
+                const option = special.options[special.selectedIndex]
+                let str = 'Saved "'+option.text+'" as default!'
+                let error = false
+                if (option.id.includes('Remix')) {
+                    str = 'Cannot save remixes. Please save it as a new preset.'
+                    error = true
+                }
 
-                button.textContent = 'Saved!'
-                setTimeout(() => button.textContent = 'Save active preset as default', 1000)
-                defaultPreset = special.selectedIndex
+                button.textContent = str
+                setTimeout(() => button.textContent = 'Save active preset as default', 2000)
+                if (!error) defaultPreset = option.id
             }
 
             function changeColorLine(index, item) {
@@ -2078,7 +2089,7 @@
                         else stats.innerHTML = 'No information available'
                     }
 
-                    if (!m.dragging.line && defaultPreset > 0 && m.dragging.initGen)
+                    if (!m.dragging.line && defaultPreset.length && m.dragging.initGen)
                         m.dragging.generateImage(true)
                 }
                 m.dragging = false
