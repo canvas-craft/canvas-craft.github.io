@@ -1,7 +1,7 @@
-![canvasCraft](https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/a82f4be2-35d8-40a0-9fee-6d0a9f2d32fc)
-
 # <p align="center">**CanvasCraft v1.0.9**</p>
 > *<p align="center" >Where craft and code collide.</p>*
+
+![canvasCraft](https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/a82f4be2-35d8-40a0-9fee-6d0a9f2d32fc)
 
 Welcome to **CanvasCraft**, the comprehensive creation tool for the web 🚀\
 CanvasCraft is a unique online tool designed to allow creators to easily make images, game levels, and entire worlds within minutes.
