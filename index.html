@@ -13,7 +13,7 @@
             }
 
             :root {
-                --border: #444 2px solid;
+                --shadow: 2px 4px 10px #000
             }
 
             html {height: 100%}
@@ -39,13 +39,14 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: #111;
+                background: #000;
                 opacity: 1;
                 z-index: 1;
                 transition: 1s ease-in-out, z-index 1.5s ease-in-out;
                 transition-delay: .3s;
                 cursor: pointer;
                 text-align: center;
+                text-shadow: var(--shadow);
             }
             .intro.ready {
                 opacity: 0;
@@ -56,15 +57,32 @@
                 right: -150px
             }
 
-            .intro img {
+            .intro #enterButton img {
                 display: block;
+                filter: drop-shadow(var(--shadow));
                 margin: auto;
                 transition: 1s cubic-bezier(.5,0,.3,1);
                 transition-delay: .3s
             }
 
-            .intro.ready img {
+            a {
+                text-decoration: none;
+                color: #0fb;
+            }
+
+            .intro.ready #enterButton img {
                 transform: scale(1.2)
+            }
+
+            .intro > img {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                filter: grayscale(70%);
             }
 
             #enterButton {
@@ -74,6 +92,11 @@
                 font-size: 3vh;
                 width: 50vh;
                 transform: translate(-50%, -50%);
+                transition: .2s;
+            }
+
+            #enterButton:hover {
+                transform: translate(-50%, -50%) scale(1.04);
             }
 
             #introButtons {
@@ -91,7 +114,7 @@
             #introButtons button {
                 font-size: 18px;
                 padding: 10px;
-                background-color: #023;
+                background-color: #134;
                 color: #0fb;
                 width: 150px;
                 transition: .2s cubic-bezier(.29,1.91,.55,1.03)
@@ -99,7 +122,7 @@
 
             #introButtons button:hover {
                 margin-right: 10px;
-                background-color: #134;
+                background-color: #245;
             }
 
             .statsSection h2 {
@@ -110,7 +133,10 @@
                 overflow: scroll;
                 width: 100%;
                 height: 100%;
-                padding: 20px;
+                padding-top: 60px;
+                padding-bottom: 30px;
+                padding-left: 20px;
+                padding-right: 20px;
             }
 
             #settings {
@@ -119,10 +145,9 @@
                 left: 50%;
                 background-color: #000;
                 color: #fff;
-                border: var(--border);
                 border-radius: 5px;
-                width: 70%;
-                height: 70%;
+                width: 100%;
+                height: 100%;
                 box-shadow: 2px 6px 10px #0009;
                 transition: opacity .2s, transform .2s;
                 opacity: 0;
@@ -133,6 +158,29 @@
             #settings.visible {
                 opacity: 1;
                 transform: translate(-50%, -50%)
+            }
+
+            #settings #banner {
+                display: flex;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                padding: 10px;
+                background-color: #000;
+                border-bottom: 2px #333 solid;
+            }
+
+            #closeSettings {
+                margin-right: 0;
+                margin-left: auto;
+                background-color: #922;
+                color: #fff;
+                width: 50px;
+            }
+
+            #closeSettings:hover {
+                background-color: #d44;
             }
 
             .contents {
@@ -155,12 +203,11 @@
             }
 
             #stats, #shapes {
-                border-right: var(--border);
-                background-color: #111;
+                background-color: #000;
                 padding: 10px;
                 display: flex;
                 flex-direction: column;
-                gap: 5px;
+                gap: 10px;
                 overflow: scroll;
             }
 
@@ -171,7 +218,6 @@
                 min-height: 50px;
                 max-height: 70vh;
                 height: 100%;
-                border-bottom: var(--border);
             }
 
             #shapes {
@@ -185,12 +231,13 @@
             }
 
             .topnav {
-                border-bottom: var(--border);
-                resize: vertical;
-                overflow: auto;
-                background-color: #111;
+                background-color: #000;
                 padding: 10px;
-                flex: 0 1 auto
+                display: flex;
+                flex: 0 1 auto;
+                gap: 5px 8px;
+                flex-wrap: wrap;
+                align-items: center;
             }
 
             #codeBox {
@@ -199,7 +246,7 @@
                 border: none;
                 border-radius: 5px;
                 padding: 5px;
-                background-color: #000;
+                background-color: transparent;
                 color: #fff;
                 overflow: scroll;
                 white-space: pre-wrap;
@@ -212,28 +259,45 @@
                 width: 20px;
                 height: 20px;
                 border-radius: 0;
-                vertical-align: -2px;
             }
 
-            button, label, input, select {
-                background-color: #000;
+            label {
+                display: flex;
+                align-items: center;
+            }
+
+            button, label, input, select, details {
+                background-color: #222;
                 color: #fff;
-                border: var(--border);
                 border-radius: 5px;
-                padding: 5px;
+                padding: 10px;
                 margin-bottom: 5px;
                 font-family: font, sans-serif;
                 outline: none;
                 font-size: 15px;
-                user-select: none
+                user-select: none;
+                border: none
+            }
+
+            details {
+                padding: 20px;
+            }
+
+            details div {
+                padding: 20px;
+                border-radius: 10px;
+            }
+
+            details input, details div {
+                background-color: #000;
             }
 
             option {
                 font-family: font, sans-serif
             }
 
-            button:hover, label:hover, .cell:hover {
-                background-color: #222;
+            button:hover, label:hover, .cell:hover, input:focus {
+                background-color: #444;
                 cursor: pointer
             }
 
@@ -253,20 +317,24 @@
             }
 
             .overlay {
-                display: inline-block;
                 position: absolute;
-                font-size: 15px;
+                font-size: 12px;
                 color: #fff;
                 bottom: 5px;
                 right: 5px;
                 display: flex;
-                align-items: center;
-                gap: 10px
+                flex-direction: column;
+                gap: 2px;
+                text-align: right;
+            }
+
+            .overlay div {
+                display: inline-block;
+                margin-left: 10px;
             }
 
             .codeBoxWrite {
-                background-color: #000;
-                border: var(--border);
+                background-color: #222;
                 border-radius: 5px;
                 padding: 5px
             }
@@ -278,12 +346,11 @@
             }
 
             .cell {
-                border: var(--border);
                 background-color: #000;
-                width: 100%;
+                width: 100%
             }
 
-            .cellSelected {
+            input.cellSelected {
                 border: 2px solid #0fb;
                 background-color: #000;
             }
@@ -317,21 +384,8 @@
             }
 
             #holderCol {
-                margin-right: 3px;
-            }
-
-            #closeSettings {
-                position: absolute;
-                top: 8px;
-                right: 8px;
-                background-color: #711;
-                border: #999 1px solid;
-                color: #fff;
-                width: 50px;
-            }
-
-            #closeSettings:hover {
-                background-color: #c22;
+                display: flex;
+                gap: 10px
             }
 
             input#fast, input#slow, #outlineEnabled, #hoverOutlineEnabled, #antiAliasing, #levelExportDetails {
@@ -343,11 +397,10 @@
             }
 
             #blockProperties, #defaultProperties {
-                border: var(--border);
                 border-radius: 5px;
-                margin: 10px;
                 padding: 10px;
                 outline: none;
+                background-color: #222;
             }
 
             #selectedBrush {
@@ -390,7 +443,6 @@
                 overflow-y: scroll;
                 transition: .3s cubic-bezier(.27,1.38,.66,1.07);
                 background-color: #000;
-                border-right: var(--border);
                 border-radius: 5px;
                 transform: translateX(-100%)
             }
@@ -403,6 +455,20 @@
                 width: 100%
             }
 
+            .layerButtons {
+                display: flex;
+                gap: 5px;
+                margin-bottom: 5px;
+            }
+
+            .layerButtons button {
+                background-color: #000;
+            }
+
+            .layerButtons button:hover {
+                background-color: #111;
+            }
+
             * {
                 box-sizing: border-box;
                 outline: none;
@@ -411,10 +477,11 @@
     </head>
     <body>
         <div class = intro onmousedown = enterCanvasCraft(this)>
+            <img src = logos/img.png>
             <div id = enterButton>
                 <img src = logos/logo.svg>
                 <h1>CanvasCraft</h1>
-                <h3>v1.0.9</h3>
+                <h3>v1.1.8</h3>
             </div>
         </div>
 
@@ -432,6 +499,17 @@
         </div>
 
         <div class = changelog>
+            <h1>06.06.2024</h1>
+            <h3>v1.1.8</h3>
+            <span>&bull; Moved "Rotated Rectangle" to settings</span>
+            <span>&bull; Editing a preset takes you to the remix</span>
+            <span>&bull; Fixed default preset glitch when adding to old layers</span>
+            <span>&bull; Splash screen background image</span>
+            <span>&bull; Reduced default presets</span>
+            <span>&bull; Better layer selection</span>
+            <span>&bull; Styling updates</span>
+            <span>&bull; Customise navigation speed in the settings</span>
+            <span>&bull; File & Image Export saves as "CanvasCraft"</span>
             <h1>31.05.2024</h1>
             <h3>v1.0.9</h3>
             <span>&bull; Presets will now save correctly</span>
@@ -463,10 +541,9 @@
             </div>
             <div class = mainSection>
                 <div class = topnav>
-                    <div class = gap>
-                        Width <input value = 100 max = 10000 type = number oninput = change() id = cvsWidth>
-                        Height <input value = 100 max = 10000 type = number oninput = change() id = cvsHeight>
-                    </div>
+                    <input value = 100 max = 10000 type = number oninput = change() id = cvsWidth>
+                    <label>&times;</label>
+                    <input value = 100 max = 10000 type = number oninput = change() id = cvsHeight>
 
                     <button onmousedown = "makeBrush(this,'block')" id = selectedBrush>Block</button>
                     <button onmousedown = "makeBrush(this,'line')">Line</button>
@@ -478,22 +555,30 @@
                         <div id = fillValue></div>
                     </label>
                     <button onmousedown = downloadImage()>Save as image</button>
+                    <button onmousedown = "game.x=0;game.y=0;game.scale=1.5e3/(CVS.width+CVS.height);updateScreen=true">Recenter</button>
                     <button onmousedown = openSettings()>Settings</button>
-                    <button onmousedown = "game.x=0;game.y=0;game.scale=game.realScale;updateScreen=true">Recenter</button>
                 </div>
                 <canvas></canvas>
-                <div class = overlay>Zoom:<div id = zoom></div></div>
+                <div class = overlay>
+                    <div>Active Layer:<div id = activeLayerType></div></div>
+                    <div>Zoom:<div id = zoom></div></div>
+                </div>
             </div>
         </div>
         <div id = settings class = invisible>
-            <button id = closeSettings onmousedown = closeSettings()>&times;</button>
+            <div id = banner>
+                <h1>Settings</h1>
+                <button id = closeSettings onmousedown = closeSettings()>&times;</button>
+            </div>
             <div id = settingsContent>
-                <h1>Settings</h1><hr>
                 <p>Draw iteration speed: <input id = maxIterations type = number
                 value = 2000 onchange = 'if(this.value<2)this.value=2;maxIter=this.value'
                 oninput = 'if (this.value>10000)this.value=10000'>
                 <span style='color:#bbb'>(the speed at which
                 code is excecuted on a shape)</span></p>
+                Zoom sensitivity <input id = zoomSpeed value = 1.5 type = number><br>
+                Pan sensitivity <input id = panSpeed value = 2 type = number>
+
                 <p><label for = outlineEnabled>
                     <input type = checkbox id = outlineEnabled checked> Selection outline
                 </label></p>
@@ -505,26 +590,68 @@
                 <input type = radio id = slow name = options>
                 Slower loading, smaller file</label></p>
                 <p><div>Rectangle code. Used for level exports. Sorted as x, y, w, h, <div id = shapeTypeAsWell></div> properties</div></p>
-                <p>Layer to export <select id = selectLayerToExport onchange = changeLayerToExport()></select>
+                <p><select id = selectLayerToExport onchange = changeLayerToExport()></select>
                 <label for = levelExportDetails><input type = checkbox id =
                 levelExportDetails onchange = openSettings() checked> Include shape types</label>
-                <input id = levelExportContent readonly></p>
+                <button onmousedown = copyExportCode(this)>Copy Code</button>
+                <input id = levelExportContent readonly placeholder = "Your level code will appear here"></p>
                 <h2>Images and shapes</h2>
                 <p>Scale final image by <input value = 1 id = scaleImage
                 oninput = scaleImageNumberCheck(this)><br>
                 Scale all shapes by <input value = 1 id = scaleShapes>
                 <button onmousedown = scaleAllShapes(scaleShapes.value,this)>Confirm</button>
-                <button onmousedown = revertAllScales(this)>Revert</button>
-                <span style=color:#dd0>WARNING: scaling shapes can result in quality loss.
-                Consider scaling the final image instead (see above)</span></p>
+                <button onmousedown = revertAllScales(this)>Revert</button></p>
                 <p><label for = antiAliasing>
                 <input type = checkbox id = antiAliasing checked> Use anti-aliasing
                 to scale shapes</label></p>
+                <h2>Code snippets</h2>
+                <br>
+                <details>
+                    <summary>Rotated rectangle</summary>
+                    <p>
+                        <input id = rotW style = 'width:100%' oninput = updateRot() type = number placeholder = "Rectangle width" value = ''>
+                        <input id = rotH style = 'width:100%' oninput = updateRot() type = number placeholder = "Rectangle height" value = ''>
+                        <div id = rotRectContent style = 'width:100%'></div>
+                    </p>
+                </details>
+                <p><h4 style='color:#bbb'>Need help? Contact support at
+                <a href = mailto:hello@joachimford.uk>hello@joachimford.uk</a></h4></p>
             </div>
         </div>
 
         <script>
             const changelog = document.getElementsByClassName('changelog')[0]
+
+            function updateRot() {
+                const rotW = document.getElementById('rotW').value || 50
+                const rotH = document.getElementById('rotH').value || 50
+                const rotRectContent = document.getElementById('rotRectContent')
+
+                rotRectContent.innerHTML = rotRectFunc(rotW, rotH, 255, 0, 0)
+            }
+
+            function rotRectFunc(w, h, r, g, b) {
+                return 'let r = '+r+'<br>'+
+                'let g = '+g+'<br>'+
+                'let b = '+b+'<br>'+
+                'let a = 1<br><br>'+
+                'const xRect = '+val(w/3)+'<br>'+
+                'const yRect = '+val(h/3)+'<br>'+
+                'const width = '+val(w)+'<br>'+
+                'const height = '+val(h)+'<br>'+
+                'const angle = 2.5 // radians<br><br>'+
+
+                'const centerX = xRect + width / 2<br>'+
+                'const centerY = yRect + height / 2<br><br>'+
+
+                '// Rotate the point around the rectangle\'s center<br>'+
+                'const xRotated = (x - centerX) * Math.cos(angle) - (y - centerY) * Math.sin(angle) + centerX<br>'+
+                'const yRotated = (x - centerX) * Math.sin(angle) + (y - centerY) * Math.cos(angle) + centerY<br><br>'+
+                '// Check if the rotated point lies within the rectangle<br>'+
+                'const isInside = (xRotated >= xRect && xRotated <= xRect + width && yRotated >= yRect && yRotated <= yRect + height)<br>'+
+                'if (!isInside) a = 0<br>'+
+                'return "rgb("+r+","+g+","+b+","+a+")"'
+            }
 
             function enterCanvasCraft(div) {
                 div.className += ' ready'
@@ -534,6 +661,14 @@
 
             function addChangeLog() {
                 if (changelog) changelog.classList.toggle('view')
+            }
+
+            function copyExportCode(button) {
+                button.textContent = 'Copied!'
+                setTimeout(() => button.textContent = 'Copy Code', 3000)
+                levelExportCode.select()
+                levelExportCode.setSelectionRange(0,99999)
+                navigator.clipboard.writeText(levelExportCode.value)
             }
 
             function updateStats(elem, index) {
@@ -577,8 +712,7 @@
                     this.initGen = true
 
                     this.line = false
-                    if (brushType == 'line')
-                        this.line = true
+                    if (brushType == 'line') this.line = true
 
                     this.x = x
                     this.y = y
@@ -588,7 +722,7 @@
                     this.h = 0
                     this.saved = false
                     this.movingHovered = false
-                    this.setDefaultPreset = false
+                    this.setToDefaultPreset = false
 
                     this.trim = {x: 0, y: 0, s: 1}
 
@@ -610,11 +744,7 @@
                         const elem = document.getElementById(layer)
                         elem.children[2].appendChild(this.cell)
                     }
-                    else {
-                        if (selectedCell.id && game.shapes.length && activeLayer.children[2].children.length)
-                            selectedCell.parentElement.appendChild(this.cell)
-                        else activeLayer.children[2].appendChild(this.cell)
-                    }
+                    else activeLayer.children[2].appendChild(this.cell)
 
                     this.cvs = document.createElement('canvas')
                     this.ctx = this.cvs.getContext('2d')
@@ -660,14 +790,12 @@
 
                     return '<h2>Textures</h2>'+
                     '<span style=color:#bbb;margin-bottom:15px>Change the texture of this shape</span>'+
-                    '<span>Save New Preset: <input id=presetName> '+
-                    '<button id=save onmousedown=savePreset()>Save</button></span>'+
+                    '<input id=presetName placeholder="Preset Name" style="width:100%">'+
+                    '<button id=save onmousedown=savePreset()>Save</button>'+
                     '<select id=codeTemplate onchange=addTemplateCode(this,'+this.index+')>'+
                     '<option id=default>Default</option>'+
-                    '<option id=rgb>RGB</option>'+
                     '<option id=noise>Noise</option>'+
                     '<option id=largenoise>Large noise</option>'+
-                    '<option id=rotated>Rotated</option>'+
                     this.localPresets+
                     addedPresets+'</select>'+
                     '<button onmousedown=savePresetAsDefault(this)>Save active preset as default</button>'+
@@ -688,6 +816,8 @@
                     selectedCell.className = 'cell'
                     this.cell.className = 'cellSelected'
                     selectedCell = this.cell
+                    activeLayer = this.cell.parentElement.parentElement
+                    activeLayerType.textContent = activeLayer.children[0].textContent
 
                     if (firstTime)
                         this.properties = defaultStr
@@ -725,7 +855,7 @@
                         '<button onmousedown=deleteCell('+this.index+','+this.origIdx+')>Delete</button>'+
                         '<button onmousedown=moveCell('+this.index+',-1,'+this.origIdx+')>Move Up</button>'+
                         '<button onmousedown=moveCell('+this.index+',1,'+this.origIdx+')>Move Down</button>'+
-                        '<span>Layer: <select id=currentLayer>'+allLayers+'</select></span>'+
+                        '<select id=currentLayer>'+allLayers+'</select>'+
                         this.addTexturesIfAppropriate()+
                         '<h2>Properties</h2>'+
                         '<span style=color:#bbb;margin-bottom:15px>Used for level exports</span>'+
@@ -737,9 +867,9 @@
                         defaultStr+'</div>'
 
                     if (!this.line) {
-                        if (!firstTime && !this.setDefaultPreset) {
-                            this.setDefaultPreset = true
+                        if (!firstTime && !this.setToDefaultPreset) {
                             const special = document.getElementById('codeTemplate')
+                            this.setToDefaultPreset = true
                             if (defaultPreset.length) {
                                 const option = document.getElementById(defaultPreset)
                                 option.selected = true
@@ -832,6 +962,7 @@
                         for (this.runX = X; this.runX < this.cvs.width; this.runX ++) {
                             for (this.runY = Y; this.runY < this.cvs.height; this.runY ++) {
                                 if (this.runX <= 0 && this.runY <= 0) calculateFillFunction()
+
                                 this.ctx.fillStyle = fillFunction(this.runX, this.runY)
                                 this.ctx.fillRect(this.runX, this.runY, 1, 1)
                                 Y = 0
@@ -1128,9 +1259,18 @@
                     const item = optionsList.options[optionsList.selectedIndex]
 
                     const str = '<option id="'+item.id+'Remix" selected>'+item.text+' - remix</option>'
-                    if (!shape.localPresetContent[item.id] && !item.id.includes('Remix')) {
-                        optionsList.innerHTML += str
-                        shape.localPresets += str
+                    if (!shape.localPresetContent[item.id]) {
+                        if (!item.id.includes('Remix')) {
+                            optionsList.innerHTML += str
+                            shape.localPresets += str
+                        }
+                    }
+                    else {
+                        const remixed = document.getElementById(item.id + 'Remix')
+                        if (remixed) {
+                            remixed.selected = true
+                            addTemplateCode(optionsList, shape.index)
+                        }
                     }
                     shape.localPresetContent[item.id] = shape.codeContent
                 }
@@ -1260,10 +1400,15 @@
                 const option = document.createElement('option')
                 option.textContent = title.textContent
                 option.realId = div.id
-                title.oninput = () => option.textContent = title.textContent
+                title.oninput = () => {
+                    const content = document.getElementById('layerTitleContent')
+                    option.textContent = title.textContent
+                    content.textContent = title.textContent
+                    activeLayerType.textContent = title.textContent
+                }
                 title.onfocus = () => {
                     stats.innerHTML =
-                        '<h1>'+title.textContent+'</h1>'+
+                        '<h1 id = layerTitleContent>'+title.textContent+'</h1>'+
                         '<h3>Layer statistics</h3><hr>'+
                         'Transform x: <input type=number id=layerTransformX>'+
                         'Transform y: <input type=number id=layerTransformY>'+
@@ -1276,10 +1421,14 @@
                     downButton.textContent = 'Move Down'
                     stats.appendChild(upButton)
                     stats.appendChild(downButton)
+                    activeLayer = div
+                    activeLayerType.textContent = activeLayer.children[0].textContent
                 }
                 layerToExport.appendChild(option)
 
                 activeLayer = div
+                activeLayerType.textContent = activeLayer.children[0].textContent
+
                 shapes.insertBefore(div, button)
                 return title
             }
@@ -1376,7 +1525,7 @@
                 if (button.textContent == 'Shrink') {
                     layer.children[2].style = 'display: none'
                     button.textContent = 'Unshrink'
-                    button.style = 'background-color: #511'
+                    button.style = 'background-color: #0b8; color: #000'
                 }
                 else {
                     layer.children[2].style = ''
@@ -1388,7 +1537,7 @@
             function hideLayer(button, layer) {
                 if (button.textContent == 'Hide') {
                     button.textContent = 'Unhide'
-                    button.style = 'background-color: #511'
+                    button.style = 'background-color: #0b8; color: #000'
 
                     for (let i = 0; i < layer.children[2].children.length; i ++) {
                         const item = layer.children[2].children[i]
@@ -1422,6 +1571,7 @@
             function openSettings() {
                 sets.className = 'visible'
                 sets.style.zIndex = 1
+                updateRot()
                 changeLayerToExport()
             }
 
@@ -1640,6 +1790,9 @@
             const settingsIncludeType = document.getElementById('shapeTypeAsWell')
             const newLayerButton = document.getElementById('createLayer')
             const layerToExport = document.getElementById('selectLayerToExport')
+            const zoomSpeedAmt = document.getElementById('zoomSpeed')
+            const panSpeedAmt = document.getElementById('panSpeed')
+            const activeLayerType = document.getElementById('activeLayerType')
             let maxIter = setMaxIterations.value
             let processesHappeningNow = 0
             let updateScreen = true
@@ -1663,6 +1816,8 @@
                 save.addedPresets = addedPresets
                 save.shapes = []
                 save.defaultString = defaultStr
+                save.zoomSense = zoomSpeedAmt.value
+                save.panSense = panSpeedAmt.value
 
                 save.layers = []
                 for (let i = 0; i < shapes.children.length; i ++) {
@@ -1712,12 +1867,12 @@
                 }
 
                 const data = JSON.stringify(save)
-                const file = new File([data], 'canvasCreator.json', {type: 'application/json'})
+                const file = new File([data], 'canvasCraft.json', {type: 'application/json'})
 
                 const a = document.createElement('a')
                 const url = URL.createObjectURL(file)
                 a.href = url
-                a.download = 'canvasCreator.json'
+                a.download = 'canvasCraft.json'
                 a.click()
             }
 
@@ -1735,6 +1890,8 @@
 
                     cvsW.value = save.width
                     cvsH.value = save.height
+                    zoomSpeedAmt.value = save.zoomSense
+                    panSpeedAmt.value = save.panSense
 
                     types.layer = 0
                     for (let i = 0; i < save.layers.length; i ++)
@@ -1811,7 +1968,7 @@
                                 shape.generateImage()
                         }
 
-                        shape.setDefaultPreset = true
+                        shape.setToDefaultPreset = true
                         game.shapes.push(shape)
 
                         updateScreen = true
@@ -1851,21 +2008,20 @@
                 const url = imageCvs.toDataURL()
                 const link = document.createElement('a')
                 link.href = url
-                link.download = 'canvasCreator.png'
+                link.download = 'canvasCraft.png'
                 document.body.appendChild(link)
                 link.click()
                 link.remove()
             }
 
             const codeOptions = {
-                default: (e) => {return 'return "'+e.originalColor+'"'},
-                rgb: (e) => {
+                default: (e) => {
                     const [r, g, b] = hexToRGB(e.originalColor)
                     return 'let r = '+r+'\nlet g = '+g+'\nlet b = '+b+'\nlet a '+
                     '= 1\nreturn "rgb("+r+","+g+","+b+","+a+")"'},
                 noise: (e) => {
                     const [r, g, b] = hexToRGB(e.originalColor)
-                    const amt = 20
+                    const amt = 40
                     return 'let r = '+r+' + Math.random() * '+amt+' - '+amt/2+'\nlet g = '+g+' + Math'+
                     '.random() * '+amt+' - '+amt/2+'\nlet b = '+b+' + Math.random() * '+amt+' - '+amt/2+'\nlet a = 1\nreturn '+
                     '"rgb("+r+","+g+","+b+","+a+")"'},
@@ -1883,31 +2039,6 @@
                     'let g = '+g+' + random(48+X*3+Y*3+X*X*Y) * '+amt+' - 10\n'+
                     'let b = '+b+' + random(15+X*5+Y*2+X*Y*Y) * '+amt+' - 10\n'+
                     'let a = 1\n\n'+
-                    'return "rgb("+r+","+g+","+b+","+a+")"'},
-                rotated: (e) => {
-                    const [r, g, b] = hexToRGB(e.originalColor)
-                    const amt = 40
-                    const newW = e.w / 1.7
-                    const newH = e.h / 1.7
-                    return 'let r = '+r+'\n'+
-                    'let g = '+g+'\n'+
-                    'let b = '+b+'\n'+
-                    'let a = 1\n\n'+
-                    'const xRect = '+val(newW/3)+'\n'+
-                    'const yRect = '+val(newH/3)+'\n'+
-                    'const width = '+val(newW)+'\n'+
-                    'const height = '+val(newH)+'\n'+
-                    'const angle = 2.5 // radians\n\n'+
-
-                    'const centerX = xRect + width / 2\n'+
-                    'const centerY = yRect + height / 2\n\n'+
-
-                    '// Rotate the point around the rectangle\'s center\n'+
-                    'const xRotated = (x - centerX) * Math.cos(angle) - (y - centerY) * Math.sin(angle) + centerX\n'+
-                    'const yRotated = (x - centerX) * Math.sin(angle) + (y - centerY) * Math.cos(angle) + centerY\n\n'+
-                    '// Check if the rotated point lies within the rectangle\n'+
-                    'const isInside = (xRotated >= xRect && xRotated <= xRect + width && yRotated >= yRect && yRotated <= yRect + height)\n'+
-                    'if (!isInside) a = 0\n'+
                     'return "rgb("+r+","+g+","+b+","+a+")"'}
             }
 
@@ -1947,12 +2078,12 @@
 
                 if (m.press) {
                     if (m.dragZoom)
-                        zoomSpeed = -(zoomPadY /
-                        game.realScale) * Math.abs(zoomPadY / 50) / 5e3
+                        zoomSpeed = -(zoomPadY / game.realScale) *
+                        Math.abs(zoomPadY / 50) / 5e3 * zoomSpeedAmt.value
 
                     else if (m.dragNav) {
-                        navXSpeed = -(navPadX / game.scale) * Math.abs(navPadX / 20) / 40
-                        navYSpeed = -(navPadY / game.scale) * Math.abs(navPadY / 20) / 40
+                        navXSpeed = -(navPadX / game.scale) * Math.abs(navPadX / 20) / 40 * panSpeedAmt.value
+                        navYSpeed = -(navPadY / game.scale) * Math.abs(navPadY / 20) / 40 * panSpeedAmt.value
                     }
 
                     else {
@@ -1993,9 +2124,12 @@
                             }
 
                             else {
-                                m.dragging = new Shape(val(mousePos.x), val(mousePos.y))
+                                let oldActive = activeLayer
+                                const newestLayer = shapes.children[shapes.children.length - 2].id
+                                m.dragging = new Shape(val(mousePos.x), val(mousePos.y), false, newestLayer)
                                 game.shapes.push(m.dragging)
                                 reCalcShapes()
+                                oldActive.children[2].appendChild(m.dragging.cell)
                             }
                         }
                     }
