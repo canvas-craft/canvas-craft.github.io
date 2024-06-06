@@ -1884,6 +1884,7 @@
                 game.shapes = []
                 shapes.innerHTML = ''
                 shapes.appendChild(newLayerButton)
+                let oldBrush = brushType
 
                 reader.onload = () => {
                     const save = JSON.parse(reader.result)
@@ -1914,6 +1915,7 @@
                         loading = false
                         if (i >= save.shapes.length) {
                             updateScreen = true
+                            brushType = oldBrush
                             return
                         }
                         loading = true
