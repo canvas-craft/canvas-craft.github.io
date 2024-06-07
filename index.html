@@ -267,7 +267,7 @@
             }
 
             button, label, input, select, details {
-                background-color: #222;
+                background-color: #292929;
                 color: #fff;
                 border-radius: 5px;
                 padding: 10px;
@@ -388,8 +388,12 @@
                 gap: 10px
             }
 
-            input#fast, input#slow, #outlineEnabled, #hoverOutlineEnabled, #antiAliasing, #levelExportDetails {
-                width: 15px
+            input#fast, input#slow, #outlineEnabled,
+            #hoverOutlineEnabled, #transparentBackground,
+            #antiAliasing, #levelExportDetails,
+            #checkReal, #cameraLock {
+                width: 15px;
+                margin-right: 10px;
             }
 
             #levelExportContent {
@@ -443,7 +447,8 @@
                 overflow-y: scroll;
                 transition: .3s cubic-bezier(.27,1.38,.66,1.07);
                 background-color: #000;
-                border-radius: 5px;
+                border-top-right-radius: 10px;
+                border-bottom-right-radius: 10px;
                 transform: translateX(-100%)
             }
 
@@ -481,7 +486,7 @@
             <div id = enterButton>
                 <img src = logos/logo.svg>
                 <h1>CanvasCraft</h1>
-                <h3>v1.1.8</h3>
+                <h3>v1.2.7</h3>
             </div>
         </div>
 
@@ -499,6 +504,17 @@
         </div>
 
         <div class = changelog>
+            <h1>07.06.2024</h1>
+            <h3>v1.2.7</h3>
+            <span>&bull; Camera can move when creating shapes</span>
+            <span>&bull; Fixed visuals when switching layer</span>
+            <span>&bull; Allowed straight lines</span>
+            <span>&bull; Added "real" to line statistics</span>
+            <span>&bull; Allow transparent background in settings</span>
+            <span>&bull; Going back to previous remix no longer goes undefined</span>
+            <span>&bull; You can delete presets in the settings</span>
+            <span>&bull; Preset names will not revert to Default when deselected</span>
+            <span>&bull; You can only select objects from the current layer</span>
             <h1>06.06.2024</h1>
             <h3>v1.1.8</h3>
             <span>&bull; Moved "Rotated Rectangle" to settings</span>
@@ -576,12 +592,21 @@
                 oninput = 'if (this.value>10000)this.value=10000'>
                 <span style='color:#bbb'>(the speed at which
                 code is excecuted on a shape)</span></p>
-                Zoom sensitivity <input id = zoomSpeed value = 1.5 type = number><br>
-                Pan sensitivity <input id = panSpeed value = 2 type = number>
+                <p>Zoom sensitivity <input id = zoomSpeed value = 1.5 type = number><br>
+                Pan sensitivity <input id = panSpeed value = 2 type = number></p>
 
                 <p><label for = outlineEnabled>
                     <input type = checkbox id = outlineEnabled checked> Selection outline
                 </label></p>
+
+                <p><label for = transparentBackground>
+                    <input type = checkbox id = transparentBackground> Transparent canvas
+                </label></p>
+
+                <p><label for = cameraLock>
+                    <input type = checkbox id = cameraLock> Camera lock
+                </label></p>
+
                 <h2>Export types</h2>
                 <p><label for = fast id = labelFast>
                 <input type = radio id = fast name = options checked>
@@ -604,6 +629,10 @@
                 <p><label for = antiAliasing>
                 <input type = checkbox id = antiAliasing checked> Use anti-aliasing
                 to scale shapes</label></p>
+                <h2>Presets</h2>
+                <p>Choose a preset to delete</p>
+                <p id = presetDeleteList style = 'display:flex;gap:5px'>
+                </p>
                 <h2>Code snippets</h2>
                 <br>
                 <details>
@@ -753,6 +782,7 @@
 
                     this.image = false
                     this.thick = defaultThick
+                    this.real = defaultReal
                     this.aspectRatio = false
                     this.aspect = 0
 
@@ -768,16 +798,20 @@
                     this.properties = ''
                     this.localPresets = ''
                     this.localPresetContent = {}
+                    this.preset = ''
                     this.setStats(true)
                     this.generateImage()
                 }
 
                 addTexturesIfAppropriate() {
                     if (this.line)
-                        return '<div>Color <input type=color value='+this.color+
-                        ' oninput=changeColorLine('+this.index+',this)><br>'+
-                        'Thickness <input type=number value='+this.thick+
-                        ' oninput=setLineThickness(this,'+this.index+')></div>'
+                        return '<label for=checkReal><input id=checkReal '+
+                        'onchange=changeDefaultCheck('+this.index+') type=checkbox>Real</label>'+
+                        '<div style="height:50px">'+
+                        '<input style="width:100%;padding:0;border-radius:5px" type=color value='+this.color+
+                        ' oninput=changeColorLine('+this.index+',this)></div>'+
+                        '<input style="width:100%" type=number value='+this.thick+
+                        ' oninput=setLineThickness(this,'+this.index+')>'
 
                     let maybeImage = ''
                     if (this.image) maybeImage = '<span><div id=newRatio>Ratio: '+
@@ -866,13 +900,21 @@
                         '<div id=defaultProperties contenteditable oninput="defaultStr=this.textContent">'+
                         defaultStr+'</div>'
 
+                    // Change line checkbox stats
+                    const box = document.getElementById('checkReal')
+                    if (box) box.checked = this.real
+
+                    const special = document.getElementById('codeTemplate')
                     if (!this.line) {
                         if (!firstTime && !this.setToDefaultPreset) {
-                            const special = document.getElementById('codeTemplate')
                             this.setToDefaultPreset = true
                             if (defaultPreset.length) {
                                 const option = document.getElementById(defaultPreset)
-                                option.selected = true
+                                if (option) {
+                                    special.options[special.selectedIndex].selected = false
+                                    option.selected = true
+                                    this.preset = defaultPreset
+                                }
                             }
                             else special.selectedIndex = 0
                             addTemplateCode(special, this.index)
@@ -881,6 +923,12 @@
                     }
                     else this.setLineDraw()
 
+                    if (this.preset) {
+                        special.options[special.selectedIndex].selected = false
+                        const preset = document.getElementById(this.preset)
+                        if (preset) preset.selected = true
+                    }
+
                     const currentLayer = document.getElementById('currentLayer')
                     currentLayer.onchange = () => {
                         const layerName = currentLayer.options[currentLayer.selectedIndex].id
@@ -888,6 +936,7 @@
                         const cell = document.getElementById(this.origIdx)
                         layer.children[2].appendChild(cell)
                         reCalcShapes()
+                        this.setStats()
                     }
 
                     updateScreen = true
@@ -897,6 +946,7 @@
                     const thick = this.thick
                     this.cvs.width = Math.abs(Math.floor(this.x2 - this.x)) + thick
                     this.cvs.height = Math.abs(Math.floor(this.y2 - this.y)) + thick
+
                     let w = this.x2 - this.x
                     let h = this.y2 - this.y
 
@@ -993,15 +1043,30 @@
 
                 draw() {
                     if (this.line) {
-                        const x = .5 + Math.sign(Math.floor(this.x - this.x2)) / 2
-                        const y = .5 + Math.sign(Math.floor(this.y - this.y2)) / 2
+                        if (this.real) {
+                            const r = rect(game.x, game.y)
+                            const p1 = {x: this.x * game.scale, y: this.y * game.scale}
+                            const p2 = {x: this.x2 * game.scale, y: this.y2 * game.scale}
 
-                        drawImage(
-                            this.cvs,
-                            this.x + x * (this.x2 - this.x) - this.thick / 2,
-                            this.y + y * (this.y2 - this.y) - this.thick / 2,
-                            this.cvs.width,
-                            this.cvs.height)
+                            ctx.strokeStyle = this.color
+                            ctx.lineWidth = this.thick
+                            ctx.beginPath()
+                            ctx.moveTo(r.x + p1.x, r.y + p1.y)
+                            ctx.lineTo(r.x + p2.x, r.y + p2.y)
+                            ctx.stroke()
+                        }
+
+                        else {
+                            const x = .5 + Math.sign(Math.floor(this.x - this.x2)) / 2
+                            const y = .5 + Math.sign(Math.floor(this.y - this.y2)) / 2
+
+                            drawImage(
+                                this.cvs,
+                                this.x + x * (this.x2 - this.x) - this.thick / 2,
+                                this.y + y * (this.y2 - this.y) - this.thick / 2,
+                                this.cvs.width,
+                                this.cvs.height)
+                        }
                         return
                     }
                     drawImage(this.cvs, this.x, this.y, this.w, this.h)
@@ -1038,6 +1103,7 @@
                 updateScreen = true
             }
 
+            let defaultReal = false
             let defaultThick = 10
             function setLineThickness(item, index) {
                 const shape = game.shapes[index]
@@ -1046,6 +1112,14 @@
                 shape.thick = value
                 shape.setLineDraw()
                 updateScreen = true
+            }
+
+            function changeDefaultCheck(index) {
+                const box = document.getElementById('checkReal')
+                if (box) {
+                    defaultReal = box.checked
+                    game.shapes[index].real = defaultReal
+                }
             }
 
             function updateProp(item, index) {
@@ -1144,7 +1218,8 @@
             let storePresets = []
             function savePreset() {
                 const selections = document.getElementById('codeTemplate')
-                const name = document.getElementById('presetName').value
+                const presetName = document.getElementById('presetName')
+                const name = presetName.value
                 const code = document.getElementById('codeBox').value
                 const save = document.getElementById('save')
                 if (!name.replace(/\s/g,'').length) return
@@ -1160,6 +1235,7 @@
                 storePresets.push({name, code})
                 codeOptions[name] = (e) => {return code}
 
+                presetName.value = ''
                 save.innerHTML = 'Saved!'
                 setTimeout(() => save.innerHTML = 'Save', 1000)
             }
@@ -1237,10 +1313,12 @@
                 const box = document.getElementById('codeBox')
                 const shape = game.shapes[index]
                 const id = area.options[area.selectedIndex].id
+                shape.preset = id
                 const func = codeOptions[id]
                 if (func) box.value = func(game.shapes[index])
                 else box.value = shape.localPresetContent[id]
                 writeCode(index, box, true)
+                shape.generateImage()
             }
 
             function setCodeBoxHeight() {
@@ -1254,18 +1332,27 @@
                 const shape = game.shapes[index]
                 shape.codeContent = box.value
 
+                // If we are not adding code from storage, but from user input
                 if (!templateCode) {
                     const optionsList = document.getElementById('codeTemplate')
                     const item = optionsList.options[optionsList.selectedIndex]
 
-                    const str = '<option id="'+item.id+'Remix" selected>'+item.text+' - remix</option>'
+                    shape.preset = item.id
+
+                    // If remix doesn't already exist...
                     if (!shape.localPresetContent[item.id]) {
                         if (!item.id.includes('Remix')) {
+                            // Make a remix
+                            const str = '<option id="'+item.id+'Remix" selected>'+item.text+' - remix</option>'
                             optionsList.innerHTML += str
                             shape.localPresets += str
+                            shape.preset = item.id + 'Remix'
                         }
                     }
+                    // If remix does already exist...
                     else {
+                        // Select the old remix
+                        shape.preset = item.id + 'Remix'
                         const remixed = document.getElementById(item.id + 'Remix')
                         if (remixed) {
                             remixed.selected = true
@@ -1568,11 +1655,34 @@
                 item.id = 'selectedBrush'
             }
 
+            function calcAddedPresets() {
+                addedPresets = ''
+                for (let i = 0; i < storePresets.length; i ++) {
+                    const name = storePresets[i].name
+                    addedPresets += '<option id="'+name+'">'+name+'</option>'
+                }
+            }
+
             function openSettings() {
                 sets.className = 'visible'
                 sets.style.zIndex = 1
                 updateRot()
                 changeLayerToExport()
+
+                presetDeleteList.innerHTML = ''
+                for (let i = 0; i < storePresets.length; i ++) {
+                    const button = document.createElement('button')
+                    button.onmousedown = () => {
+                        if (!confirm('Delete "'+button.textContent+'"?')) return
+                        presetDeleteList.removeChild(button)
+                        storePresets.splice(i, 1)
+                        codeOptions[button.textContent] = false
+                        i --
+                        calcAddedPresets()
+                    }
+                    button.textContent = storePresets[i].name
+                    presetDeleteList.appendChild(button)
+                }
             }
 
             function closeSettings() {
@@ -1583,9 +1693,32 @@
                 }
             }
 
+            function rect(x, y) {
+                return {
+                    x: cvs.width / 2 + (game.x - CVS.width / 2) * game.scale,
+                    y: cvs.height / 2 + (game.y - CVS.height / 2) * game.scale
+                }
+            }
+
             function drawOnCvs() {
-                CTX.fillStyle = '#fff'
-                fillRect(0, 0, CVS.width, CVS.height)
+                if (transparentBackground.checked) {
+                    CTX.clearRect(0, 0, CVS.width, CVS.height)
+
+                    if (editWithOutline.checked) {
+                        const t = 3
+                        const r = rect(game.x, game.y)
+                        ctx.lineWidth = t * 2
+                        ctx.strokeStyle = '#f00'
+                        ctx.strokeRect(
+                            r.x - t, r.y - t,
+                            CVS.width * game.scale + t * 2,
+                            CVS.height * game.scale + t * 2)
+                    }
+                }
+                else {
+                    CTX.fillStyle = '#fff'
+                    fillRect(0, 0, CVS.width, CVS.height)
+                }
 
                 const returnOutline = []
                 let subProcess = 0
@@ -1612,14 +1745,26 @@
             function loop() {
                 requestAnimationFrame(loop)
 
-                if (!updateScreen && !m.dragZoom && !m.dragNav) return
+                if (!updateScreen && !m.dragZoom && !m.dragNav && !m.dragging) return
                 updateScreen = false
 
                 ctx.imageSmoothingEnabled = false
                 ctx.clearRect(0, 0, cvs.width, cvs.height)
+
                 game.time ++
                 game.scale += zoomSpeed * game.scale
                 if (game.scale < game.realScale / 50) game.scale = game.realScale / 50
+
+                if (m.dragging && !cameraLock.checked) {
+                    const amt = (cvs.width + cvs.height) / 20
+                    const spd = panSpeedAmt.value * .008
+                    navXSpeed = 0
+                    navYSpeed = 0
+                    if (m.x < amt) navXSpeed = (amt - m.x) * spd
+                    if (m.x > cvs.width - amt) navXSpeed = ((cvs.width - amt) - m.x) * spd
+                    if (m.y < amt) navYSpeed = (amt - m.y) * spd
+                    if (m.y > cvs.height - amt) navYSpeed = ((cvs.height - amt) - m.y) * spd
+                }
 
                 game.x += navXSpeed
                 game.y += navYSpeed
@@ -1627,8 +1772,9 @@
                 const arr = drawOnCvs()
 
                 // CANVAS
-                const X = cvs.width / 2 + (game.x - CVS.width / 2) * game.scale
-                const Y = cvs.height / 2 + (game.y - CVS.height / 2) * game.scale
+                const myRect = rect(game.x, game.y)
+                const X = myRect.x
+                const Y = myRect.y
                 if (CVS.width && CVS.height)
                     ctx.drawImage(CVS, X, Y, CVS.width * game.scale, CVS.height * game.scale)
 
@@ -1793,6 +1939,9 @@
             const zoomSpeedAmt = document.getElementById('zoomSpeed')
             const panSpeedAmt = document.getElementById('panSpeed')
             const activeLayerType = document.getElementById('activeLayerType')
+            const presetDeleteList = document.getElementById('presetDeleteList')
+            const transparentBackground = document.getElementById('transparentBackground')
+            const cameraLock = document.getElementById('cameraLock')
             let maxIter = setMaxIterations.value
             let processesHappeningNow = 0
             let updateScreen = true
@@ -1834,6 +1983,7 @@
 
                     dic.line = item.line
                     dic.thick = item.thick
+                    dic.real = item.real
                     dic.originalColor = item.originalColor
                     dic.color = item.color
                     dic.name = item.cell.value
@@ -1940,6 +2090,7 @@
                         shape.y2 = item.y2
                         shape.line = item.line
                         shape.thick = item.thick
+                        shape.real = item.real
                         shape.color = item.color
                         shape.originalColor = item.originalColor
                         shape.properties = item.properties
@@ -2079,60 +2230,59 @@
                 }
 
                 if (m.press) {
-                    if (m.dragZoom)
-                        zoomSpeed = -(zoomPadY / game.realScale) *
-                        Math.abs(zoomPadY / 50) / 5e3 * zoomSpeedAmt.value
 
-                    else if (m.dragNav) {
-                        navXSpeed = -(navPadX / game.scale) * Math.abs(navPadX / 20) / 40 * panSpeedAmt.value
-                        navYSpeed = -(navPadY / game.scale) * Math.abs(navPadY / 20) / 40 * panSpeedAmt.value
-                    }
+                    if (m.dragging) {
+                        if (m.dragging.movingHovered) {
+                            const xD = m.dragging.x
+                            const yD = m.dragging.y
+                            m.dragging.x = val(mousePos.x - m.dragOft.x)
+                            m.dragging.y = val(mousePos.y - m.dragOft.y)
 
-                    else {
-                        if (m.dragging) {
-                            if (m.dragging.movingHovered) {
-                                const xD = m.dragging.x
-                                const yD = m.dragging.y
-                                m.dragging.x = val(mousePos.x - m.dragOft.x)
-                                m.dragging.y = val(mousePos.y - m.dragOft.y)
-
-                                if (m.dragging.line) {
-                                    m.dragging.x2 -= xD - m.dragging.x
-                                    m.dragging.y2 -= yD - m.dragging.y
-                                }
+                            if (m.dragging.line) {
+                                m.dragging.x2 -= xD - m.dragging.x
+                                m.dragging.y2 -= yD - m.dragging.y
                             }
-
-                            else {
-                                if (m.dragging.line) {
-                                    m.dragging.x2 = val(mousePos.x)
-                                    m.dragging.y2 = val(mousePos.y)
-                                }
-                                else {
-                                    m.dragging.w = val(mousePos.x - m.dragging.x)
-                                    m.dragging.h = val(mousePos.y - m.dragging.y)
-                                }
-                            }
-
-                            m.dragging.setStats()
                         }
 
                         else {
-                            if (m.moveHovered) {
-                                m.dragging = game.shapes[selectedCell.realId]
-                                m.dragging.movingHovered = true
-                                m.dragOft = {
-                                    x: mousePos.x - m.dragging.x,
-                                    y: mousePos.y - m.dragging.y}
+                            if (m.dragging.line) {
+                                m.dragging.x2 = val(mousePos.x)
+                                m.dragging.y2 = val(mousePos.y)
                             }
-
                             else {
-                                let oldActive = activeLayer
-                                const newestLayer = shapes.children[shapes.children.length - 2].id
-                                m.dragging = new Shape(val(mousePos.x), val(mousePos.y), false, newestLayer)
-                                game.shapes.push(m.dragging)
-                                reCalcShapes()
-                                oldActive.children[2].appendChild(m.dragging.cell)
+                                m.dragging.w = val(mousePos.x - m.dragging.x)
+                                m.dragging.h = val(mousePos.y - m.dragging.y)
                             }
+                        }
+
+                        m.dragging.setStats()
+                    }
+
+                    else {
+                        if (m.dragZoom)
+                            zoomSpeed = -(zoomPadY / game.realScale) *
+                            Math.abs(zoomPadY / 50) / 5e3 * zoomSpeedAmt.value
+
+                        else if (m.dragNav) {
+                            navXSpeed = -(navPadX / game.scale) * Math.abs(navPadX / 20) / 40 * panSpeedAmt.value
+                            navYSpeed = -(navPadY / game.scale) * Math.abs(navPadY / 20) / 40 * panSpeedAmt.value
+                        }
+
+                        else if (m.moveHovered) {
+                            m.dragging = game.shapes[selectedCell.realId]
+                            m.dragging.movingHovered = true
+                            m.dragOft = {
+                                x: mousePos.x - m.dragging.x,
+                                y: mousePos.y - m.dragging.y}
+                        }
+
+                        else {
+                            let oldActive = activeLayer
+                            const newestLayer = shapes.children[shapes.children.length - 2].id
+                            m.dragging = new Shape(val(mousePos.x), val(mousePos.y), false, newestLayer)
+                            game.shapes.push(m.dragging)
+                            reCalcShapes()
+                            oldActive.children[2].appendChild(m.dragging.cell)
                         }
                     }
                 }
@@ -2148,6 +2298,15 @@
                         if (shape.line) {
                             w = shape.x2 - shape.x
                             h = shape.y2 - shape.y
+                            const range = 4
+                            if (!w) {
+                                w = range
+                                x -= range / 2
+                            }
+                            if (!h) {
+                                h = range
+                                y -= range / 2
+                            }
                         }
                         if (w < 0) {
                             x += w
@@ -2164,7 +2323,7 @@
                             mousePos.y < y + h) {
 
                             let onTheRightLayer = true
-                            if (selectedCell.parentElement && selectedCell.parentElement.parentElement.id != shape.cell.parentElement.parentElement.id)
+                            if (selectedCell.parentElement && activeLayer.id != shape.cell.parentElement.parentElement.id)
                                 onTheRightLayer = false
 
                             if (onTheRightLayer) focusOnItem = shape.index
@@ -2208,12 +2367,9 @@
                     m.dragging.setStats()
 
                     const boxDrag = !m.dragging.line && (!val(m.dragging.w) || !val(m.dragging.h))
-                    const lineDrag = m.dragging.line && (
-                        val(m.dragging.x2) == val(m.dragging.x) ||
-                        val(m.dragging.y2) == val(m.dragging.y))
 
                     // Remove shape if too thin
-                    if (boxDrag || lineDrag) {
+                    if (boxDrag) {
                         types[m.dragging.name] --
 
                         const cell = document.getElementById(m.dragging.origIdx)
