@@ -1,4 +1,4 @@
-# <p align="center">**CanvasCraft v1.1.8**</p>
+# <p align="center">**CanvasCraft v1.2.7**</p>
 > *<p align="center" >Where craft and code collide</p>*
 
 ![canvas_craft_big](https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/bb0dd4a2-987d-4fa4-9939-e965a486bb46)
