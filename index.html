@@ -1041,19 +1041,22 @@
                     drawPixels(0,0)
                 }
 
-                draw() {
+                draw(drawingInFront = false) {
                     if (this.line) {
                         if (this.real) {
-                            const r = rect(game.x, game.y)
-                            const p1 = {x: this.x * game.scale, y: this.y * game.scale}
-                            const p2 = {x: this.x2 * game.scale, y: this.y2 * game.scale}
+                            if (drawingInFront) {
+                                const r = rect(game.x, game.y)
+                                const p1 = {x: this.x * game.scale, y: this.y * game.scale}
+                                const p2 = {x: this.x2 * game.scale, y: this.y2 * game.scale}
 
-                            ctx.strokeStyle = this.color
-                            ctx.lineWidth = this.thick
-                            ctx.beginPath()
-                            ctx.moveTo(r.x + p1.x, r.y + p1.y)
-                            ctx.lineTo(r.x + p2.x, r.y + p2.y)
-                            ctx.stroke()
+                                ctx.strokeStyle = this.color
+                                ctx.lineWidth = this.thick
+                                ctx.beginPath()
+                                ctx.moveTo(r.x + p1.x, r.y + p1.y)
+                                ctx.lineTo(r.x + p2.x, r.y + p2.y)
+                                ctx.stroke()
+                            }
+                            else realShapes.push(this)
                         }
 
                         else {
@@ -1768,6 +1771,7 @@
                 game.x += navXSpeed
                 game.y += navYSpeed
 
+                realShapes = []
                 const arr = drawOnCvs()
 
                 // CANVAS
@@ -1776,6 +1780,9 @@
                 const Y = myRect.y
                 if (CVS.width && CVS.height)
                     ctx.drawImage(CVS, X, Y, CVS.width * game.scale, CVS.height * game.scale)
+
+                for (let i = 0; i < realShapes.length; i ++)
+                    realShapes[i].draw(true)
 
                 m.moveHovered = false
                 for (let i = 0; i < arr.length; i ++) {
@@ -1954,6 +1961,7 @@
             let navPadYOft = 0
             let navXSpeed = 0
             let navYSpeed = 0
+            let realShapes = []
 
             const save = {}
 
