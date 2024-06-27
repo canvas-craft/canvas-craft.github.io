@@ -19,4 +19,4 @@ This project was initially created for the purpose of building complex game worl
 
 ***
 
-This version of CanvasCraft is in BETA testing, and may have a few minor glitches. If you have found one, please raise an issue or contact us at [hello@joachimford.uk](mailto:hello@joachimford.uk). Thanks!
+This version of CanvasCraft is in beta testing, and may have a few minor glitches. If you have found one, please raise an issue or contact us at [hello@joachimford.uk](mailto:hello@joachimford.uk). Thanks!
