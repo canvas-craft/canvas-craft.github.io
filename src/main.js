@@ -173,6 +173,8 @@ const openSplash = document.getElementById('openSplash')
 openSplash.onmousedown = () => splash.classList.remove('closed')
 
 centerSplash.onmousedown = () => {
+    if (performance.now() < 2500) return
+
     splash.classList.add('closed')
     if (settings.classList.contains('open')) return
 
