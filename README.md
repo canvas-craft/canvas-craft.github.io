@@ -2,9 +2,9 @@
   <img src="https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/93b63ef0-ed95-4401-a235-6e038dc3082e" width="200" />
 </p>
 
+*<p align="center">Build game worlds in minutes by combining art with code</p>*
 # <p align="center">**CanvasCraft v2.0.0 BETA**</p>
-> *<p align="center">Build game worlds in minutes by combining art with code</p>*
-> ## <p align="center">Try it today at [canvas-craft.github.io](https://canvas-craft.github.io)</p>
+## <p align="center">Try it today at [canvas-craft.github.io](https://canvas-craft.github.io)</p>
 
 Welcome to **CanvasCraft**, the comprehensive creation tool for the web 🚀\
 CanvasCraft is a unique online tool designed to allow creators to easily make images, game levels, and entire worlds within minutes.
