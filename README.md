@@ -1,7 +1,9 @@
-# <p align="center">**CanvasCraft v1.2.7**</p>
-> *<p align="center" >Where craft and code collide</p>*
+<p align="center">
+  <img src="https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/4101c439-6dc4-4a1c-9ada-e7c73a208fac" width="200" />
+</p>
 
-![canvas_craft_big](https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/bb0dd4a2-987d-4fa4-9939-e965a486bb46)
+# <p align="center">**CanvasCraft v2.0.0**</p>
+> *<p align="center" >Build game worlds in minutes by combining art with code</p>*
 
 Welcome to **CanvasCraft**, the comprehensive creation tool for the web 🚀\
 CanvasCraft is a unique online tool designed to allow creators to easily make images, game levels, and entire worlds within minutes.
@@ -16,4 +18,4 @@ This project was initially created for the purpose of building complex game worl
 
 ***
 
-Being an early tool, CanvasCraft may  have a few minor glitches. If you have found one, please raise an issue or contact us at [hello@joachimford.uk](mailto:hello@joachimford.uk).
+This version of CanvasCraft is in BETA testing, and may have a few minor glitches. If you have found one, please raise an issue or contact us at [hello@joachimford.uk](mailto:hello@joachimford.uk). Thanks!
