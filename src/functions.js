@@ -168,7 +168,7 @@ function chooseDefaultColor() {
 }
 
 function syntaxHighlightJavaScriptCode(code) {
-    const span = (c, e) => '<span style = "color: var(--' + c + ')">' + e + '</span>'
+    const span = (c, e) => '<span style = "color: var(--' + c + ')">' + e.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</span>'
     const main = code => {
         const data = {
             multi: /`[\s\S]*?`/,
@@ -1128,7 +1128,7 @@ function applyInfoToShapePanel(div, update = false) {
             codeTextarea.onmouseover = () => helpChange('codeTextarea')
             const change = () => {
                 // Syntax highlight
-                codePre.innerHTML = syntaxHighlightJavaScriptCode(codeTextarea.value.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '\n ')
+                codePre.innerHTML = syntaxHighlightJavaScriptCode(codeTextarea.value)
 
                 // Set background code
                 div.shape.remixes[div.shape.activeRemix].code = codeTextarea.value
