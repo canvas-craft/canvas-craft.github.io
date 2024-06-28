@@ -1128,7 +1128,7 @@ function applyInfoToShapePanel(div, update = false) {
             codeTextarea.onmouseover = () => helpChange('codeTextarea')
             const change = () => {
                 // Syntax highlight
-                codePre.innerHTML = syntaxHighlightJavaScriptCode(codeTextarea.value)
+                codePre.innerHTML = syntaxHighlightJavaScriptCode(codeTextarea.value + '\n')
 
                 // Set background code
                 div.shape.remixes[div.shape.activeRemix].code = codeTextarea.value
