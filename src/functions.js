@@ -170,10 +170,14 @@ function chooseDefaultColor() {
 function syntaxHighlightJavaScriptCode(code) {
     const span = (c, e) => '<span style = "color: var(--' + c + ')">' + e + '</span>'
     const main = code => {
-        const data = {multi: /(?<!\\)`[\s\S]*?(?<!\\)`/, regex: /(?<!\\)\/.+?(?<!\\)\/[gim]*/, comment: /\/\*[\s\S]*?\*\/|\/\/.*/, string: /(?<!\\)".*?(?<!\\)"|(?<!\\)'.*?(?<!\\)'/}
-        const main = new RegExp('(' + data.multi.source + '|' + data.string.source + '|' + data.comment.source + '|' + data.regex.source + ')')
+        const data = {
+            multi: /`[\s\S]*?`/,
+            regex: /\/.+?\/[gim]*/,
+            comment: /\/\*[\s\S]*?\*\/|\/\/.*/,
+            string: /".*?"|'.*?'/}
+        const total = new RegExp('(' + data.multi.source + '|' + data.string.source + '|' + data.comment.source + '|' + data.regex.source + ')')
 
-        return code.split(main).map((e, i) => i % 2 ? data.multi.test(e) ? e.split(/(\${.*?})/).map(
+        return code.split(total).map((e, i) => i % 2 ? data.multi.test(e) ? e.split(/(\${.*?})/).map(
             (e, i) => i % 2 ? loop(e) : span('string', e)).join('') : data.comment.test(e) ? span('comment', e) :
             data.regex.test(e) ? span('regex', e) : span('string', e) : loop(e)).join('')
     }
