@@ -4,7 +4,7 @@
         <meta charset = utf-8>
         <meta name = viewport content = 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'>
         <title>CanvasCraft</title>
-        <link rel = icon type = image/x-icon href = src/logo.ico>
+        <link rel = icon type = image/x-icon href = favicon.ico>
         <link rel = stylesheet href = src/styles.css>
     </head>
     <body>
@@ -80,7 +80,7 @@
                         included in the final image.
                     </div>
                     <label class = checkcontainer>
-                        Tranparent background
+                        Transparent background
                         <input type = checkbox checked = unchecked id = transparentBg>
                         <span class = checkmark></span>
                     </label>
@@ -93,7 +93,7 @@
                         and pick up where you left off.
                     </div>
                     <button class = small id = downloadFile>Download File</button>
-                    <label for = uploadFile id = uploadFileLabel>
+                    <label for = uploadFile class = uploadFileLabel>
                         Upload File
                         <input type = file class = small id = uploadFile accept = application/json>
                     </label>
@@ -163,7 +163,7 @@
                 <img src = src/sparkle.svg id = sparkle3 class = sparkle>
             </div>
             <div id = text>
-                <h4>CanvasCraft v2.0.0 BETA</h4>
+                <h4>CanvasCraft v2.0.0-beta.5</h4>
                 <button class = start id = aboutCanvasCraft>About</button>
                 <a class = start href = https://github.com/canvas-craft/canvas-craft.github.io target = _blank>GitHub</a>
                 <button class = start id = changelog>Changelog</button>
@@ -192,13 +192,20 @@
                     creators of many skill levels. Let your imagination go wild! 💥</p>
                 </div>
                 <div id = changelogSection>
+                    <h1>28.06.2024</h1>
+                    <h3>v2.0.0-beta.5</h3>
+                    <span>&bull; Fixed some mobile glitches</span>
+                    <span>&bull; Reimplemented the ability to upload images, plus new controls</span>
+                    <span>&bull; Saving files now records the shape's name</span>
+                    <span>&bull; Any projects saved from this update onwards will be compatible with newer versions</span>
+                    <span>&bull; Hidden shapes are no longer rendered to the final image</span>
                     <h1>27.06.2024</h1>
-                    <h3>v2.0.0 BETA</h3>
-                    <span>&bull; Released CanvasCraft v2.0.0 BETA!</span>
-                    <span>&bull; Added a basic help assistant</span>
-                    <span>&bull; Vastly improved user interface</span>
+                    <h3>v2.0.0-beta</h3>
+                    <span>&bull; Released CanvasCraft v2.0.0-beta!</span>
+                    <span>&bull; Entirely rewritten with major bug fixes and layout enhancements</span>
                     <span>&bull; Better coding practices used to enhance readability</span>
-                    <span>&bull; Entirely rewritten with bug fixes and layout enhancements</span>
+                    <span>&bull; Vastly improved user interface</span>
+                    <span>&bull; Added a basic help assistant</span>
                     <h1>07.06.2024</h1>
                     <h3>v1.2.7</h3>
                     <span>&bull; Camera can move when creating shapes</span>
