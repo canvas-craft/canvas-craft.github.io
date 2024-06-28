@@ -15,6 +15,13 @@ class Shape {
         this.outlineSpeed = .1
         this.hidden = false
 
+        this.imageMode = false
+        this.image = 0
+        this.opacity = 1
+        this.imageOftX = 0
+        this.imageOftY = 0
+        this.imageScale = 1
+
         this.shorthand = {}
         this.div = 0
         this.hoverCommand = false
@@ -42,6 +49,11 @@ class Shape {
         this.cvs.width = 1
         this.cvs.height = 1
         this.drawOnShape(true)
+    }
+
+    resize() {
+        if (!this.imageMode) return
+        this.drawOnShape()
     }
 
     deleteSelf() {
@@ -225,6 +237,29 @@ class Shape {
     drawOnShape(init = false) {
         if (this.line) return
 
+        const resize = () => {
+            if (this.w > 0) this.cvs.width = this.w
+            if (this.h > 0) this.cvs.height = this.h
+        }
+
+        if (this.imageMode && this.image) {
+            resize()
+
+            const w = this.image.width * this.imageScale
+            const h = this.image.height * this.imageScale
+            this.ctx.imageSmoothingEnabled = false
+
+            this.ctx.clearRect(0, 0, this.w, this.h)
+            this.ctx.globalAlpha = this.opacity
+            this.ctx.drawImage(
+                this.image,
+                this.imageOftX + this.w / 2 - w / 2,
+                this.imageOftY + this.h / 2 - h / 2,
+                w, h)
+            this.ctx.globalAlpha = 1
+            return
+        }
+
         // If shape is already rendering and needs to start again, reset the coordinates
         if (this.running) {
             this.ctx.clearRect(0, 0, this.w, this.h)
@@ -233,8 +268,7 @@ class Shape {
             return
         }
 
-        if (this.w > 0) this.cvs.width = this.w
-        if (this.h > 0) this.cvs.height = this.h
+        resize()
         this.ctx.clearRect(0, 0, this.w, this.h)
 
         const plainColor = 'rgb('+this.color[0]+','+this.color[1]+','+this.color[2]+')'

@@ -2,6 +2,7 @@
 
 function generateDownloadFile() {
     const save = {}
+    save.version = 'canvasCraft-v2.0.0-beta.5'
     save.codes = codes
     save.layers = []
 
@@ -11,22 +12,40 @@ function generateDownloadFile() {
         const layer = layers[i].arr
         for (let j = 0; j < layer.length; j ++) {
             const shape = layer[j]
-            save.layers[i].arr.push({
+            const dic = {
                 x: shape.x,
                 y: shape.y,
                 w: shape.w,
                 h: shape.h,
+                name: shape.div.shapeName.value,
                 line: shape.line,
                 lineThick: shape.lineThick,
                 invertX: shape.invertX,
                 invertY: shape.invertY,
+                imageMode: shape.imageMode,
+                opacity: shape.opacity,
+                imageOftX: shape.imageOftX,
+                imageOftY: shape.imageOftY,
+                imageScale: shape.imageScale,
                 color: shape.color,
                 hidden: shape.hidden,
                 property: shape.property,
                 activeRemix: shape.activeRemix,
                 activePreset: shape.activePreset,
                 remixes: shape.remixes
-            })
+            }
+
+            dic.base64 = {image: false, url: false}
+            if (shape.image) {
+                const canvas = document.createElement('canvas')
+                const context = canvas.getContext('2d')
+                canvas.width = shape.image.width
+                canvas.height = shape.image.height
+                context.drawImage(shape.image, 0, 0, canvas.width, canvas.height)
+                dic.base64 = {image: true, url: canvas.toDataURL()}
+            }
+
+            save.layers[i].arr.push(dic)
         }
     }
 
@@ -69,12 +88,34 @@ function generateUploadFile(item) {
                 newShape.lineThick = shape.lineThick
                 newShape.invertX = shape.invertX
                 newShape.invertY = shape.invertY
+                newShape.imageMode = shape.imageMode
+                newShape.opacity = shape.opacity
+                newShape.imageOftX = shape.imageOftX
+                newShape.imageOftY = shape.imageOftY
+                newShape.imageScale = shape.imageScale
                 newShape.color = shape.color
                 if (shape.hidden) newShape.hideSelf()
                 newShape.property = shape.property
                 newShape.activeRemix = shape.activeRemix
                 newShape.activePreset = shape.activePreset
                 newShape.remixes = shape.remixes
+                newShape.div.shapeName.value = shape.name
+
+                if (shape.base64) {
+                    const img = new Image()
+                    img.onload = () => {
+                        newShape.image = img
+                        newShape.image.width = img.width
+                        newShape.image.height = img.height
+
+                        if (shape.imageMode) {
+                            newShape.drawOnShape()
+                            newShape.draw()
+                            updateScreen = true
+                        }
+                    }
+                    img.src = shape.base64.url
+                }
 
                 newShape.drawOnShape()
                 newShape.draw()

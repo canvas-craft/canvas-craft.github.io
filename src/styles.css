@@ -493,7 +493,7 @@ button.wide, button.normal {
     justify-content: center;
 }
 
-button.wide:hover, button.small:hover, #uploadFileLabel:hover {
+button.wide:hover, button.small:hover, .uploadFileLabel:hover {
     background-color: #333;
     cursor: pointer;
 }
@@ -526,7 +526,7 @@ button.normal:hover {
     cursor: pointer;
 }
 
-button.small, #uploadFileLabel {
+button.small, .uploadFileLabel {
     font-size: 18px;
     padding: 10px;
     background-color: #222;
@@ -627,6 +627,7 @@ button.small, #uploadFileLabel {
     font-family: code;
     font-size: 16px;
     transition: .2s;
+    color: #000
 }
 
 .colorPick div.light {
@@ -974,7 +975,7 @@ h3.center {
     justify-content: center;
     border-radius: 50px;
     border: var(--border);
-    transition: .2s;
+    transition: .1s;
     cursor: pointer;
 }
 
@@ -1045,6 +1046,27 @@ a {
 
 #changelogSection span {
     font-size: 20px;
+}
+
+.slider {
+    width: 100%;
+    padding: 5px;
+    height: 40px;
+    background: #222;
+    outline: none;
+    border-radius: 5px;
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none
+}
+
+.slider::-moz-range-thumb, .slider::-webkit-slider-thumb {
+    width: 25px;
+    height: 25px;
+    background: #0fb;
+    border: none;
+    cursor: pointer;
 }
 
 .start {
@@ -1120,6 +1142,13 @@ a {
     to {transform: translateX(-50%) translateY(-50%) scale(1)}
 }
 
+@-webkit-keyframes openLogo {
+    from {-webkit-transform: translateX(-50%) translateY(-50%) scale(.8)}
+    33% {-webkit-transform: translateX(-50%) translateY(-50%) scale(1.1)}
+    66% {-webkit-transform: translateX(-50%) translateY(-50%) scale(.9)}
+    to {-webkit-transform: translateX(-50%) translateY(-50%) scale(1)}
+}
+
 @keyframes breathingLogo {
     from {transform: translateX(-50%) translateY(-50%) rotate(0)}
     78% {transform: translateX(-50%) translateY(-50%) rotate(0)}
@@ -1129,11 +1158,27 @@ a {
     to {transform: translateX(-50%) translateY(-50%) rotate(0)}
 }
 
+@-webkit-keyframes breathingLogo {
+    from {-webkit-transform: translateX(-50%) translateY(-50%) rotate(0)}
+    78% {-webkit-transform: translateX(-50%) translateY(-50%) rotate(0)}
+    82% {-webkit-transform: translateX(-50%) translateY(-50%) rotate(-4deg)}
+    88% {-webkit-transform: translateX(-50%) translateY(-50%) rotate(8deg)}
+    94% {-webkit-transform: translateX(-50%) translateY(-50%) rotate(-8deg)}
+    to {-webkit-transform: translateX(-50%) translateY(-50%) rotate(0)}
+}
+
 @keyframes sparkle1 {
     from {opacity: 0}
     50% {transform: translateX(160%) translateY(-240%) scale(0) rotate(50deg); opacity: 0}
     75% {transform: translateX(160%) translateY(-250%) scale(.8); opacity: 1}
     to {transform: translateX(160%) translateY(-250%) scale(.7)}
+}
+
+@-webkit-keyframes sparkle1 {
+    from {opacity: 0}
+    50% {-webkit-transform: translateX(160%) translateY(-240%) scale(0) rotate(50deg); opacity: 0}
+    75% {-webkit-transform: translateX(160%) translateY(-250%) scale(.8); opacity: 1}
+    to {-webkit-transform: translateX(160%) translateY(-250%) scale(.7)}
 }
 
 @keyframes sparkle2 {
@@ -1143,11 +1188,25 @@ a {
     to {transform:  translateX(80%) translateY(-280%) scale(.2)}
 }
 
+@-webkit-keyframes sparkle2 {
+    from {opacity: 0}
+    60% {-webkit-transform: translateX(80%) translateY(-270%) scale(0) rotate(-50deg); opacity: 0}
+    75% {-webkit-transform: translateX(80%) translateY(-280%) scale(.3); opacity: 1}
+    to {-webkit-transform:  translateX(80%) translateY(-280%) scale(.2)}
+}
+
 @keyframes sparkle3 {
     from {opacity: 0}
     65% {transform: translateX(210%) translateY(-110%) scale(0) rotate(20deg); opacity: 0}
     85% {transform: translateX(210%) translateY(-120%) scale(.5); opacity: 1}
     to {transform: translateX(210%) translateY(-120%) scale(.4)}
+}
+
+@-webkit-keyframes sparkle3 {
+    from {opacity: 0}
+    65% {-webkit-transform: translateX(210%) translateY(-110%) scale(0) rotate(20deg); opacity: 0}
+    85% {-webkit-transform: translateX(210%) translateY(-120%) scale(.5); opacity: 1}
+    to {-webkit-transform: translateX(210%) translateY(-120%) scale(.4)}
 }
 
 @media screen and (max-width: 900px) {
@@ -1170,5 +1229,5 @@ a {
 
 * {
     box-sizing: border-box;
-    touch-action: none;
+    touch-action: pan-y;
 }

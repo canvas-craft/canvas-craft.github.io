@@ -46,7 +46,14 @@ const conversation = {
     transform: '*Transform Layer* Move the contents of the layer by a certain amount',
     layerUp: '*Move Back* Push the layer back',
     layerDown: '*Move Down* Pull the layer forward',
-    merge: '*Merge Up* Merge this layer with the one above'
+    merge: '*Merge Up* Merge this layer with the one above',
+    image: '*Image Mode* This allows you to insert an image from your device. You can switch back at any time',
+    shapeMode: '*Shape Mode* Go back to the original texture mode. You can switch back at any time',
+    chooseShapeImage: '*Select Image* Upload to an image from your device to assign it to this shape. If you do not want to upload an image, just switch back to Shape Mode',
+    opacitySlider: '*Opacity* Control the opacity of this image',
+    imagexPos: '*X Offset* The x offset of the image in this shape',
+    imageyPos: '*Y Offset* The y offset of the image in this shape',
+    imageScale: '*Scale* Control the size of the image'
 }
 
 let createdAShape = false
