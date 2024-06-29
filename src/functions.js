@@ -1,21 +1,24 @@
 'use strict'
 
+function isVertical(line) {
+    const dx = line.x2 - line.x1
+    const dy = line.y2 - line.y1
+    if (Math.abs(dx) < Math.abs(dy)) return true
+    return false
+}
+
 function randomStr() {
     return Math.floor(Math.random() * 10000)
 }
 
 function generateSaveCode() {
-    let str = ''
+    let totalStr = ''
     for (let i = 0; i < layers.length; i ++) {
         const layer = layers[i].arr
         if (chosenLayer != 'all' && i != chosenLayer) continue
 
-        for (let j = 0; j < layer.length; j ++) {
-            const shape = layer[j]
-            if (!shape.line && !includeShapes.checked) continue
-            if (shape.line && !includeLines.checked) continue
-            if (shape.hidden && !includeHidden.checked) continue
-
+        const calculateShape = shape => {
+            let str = ''
             let x = shape.x
             let y = shape.y
             let w = shape.w
@@ -41,11 +44,39 @@ function generateSaveCode() {
                 }
                 else str += 'false,'
             }
+
+            return str
+        }
+
+        const calculateLast = []
+        for (let j = 0; j < layer.length; j ++) {
+            const shape = layer[j]
+            if (!shape.line && !includeShapes.checked) continue
+            if (shape.line && !includeLines.checked) continue
+            if (shape.hidden && !includeHidden.checked) continue
+
+            const x = shape.x
+            const y = shape.y
+            const w = shape.w
+            const h = shape.h
+
+            if (shape.line && verticalLast.checked &&
+                isVertical({x1: x, y1: y, x2: x + w, y2: y + h})) {
+                calculateLast.push(shape)
+                continue
+            }
+
+            totalStr += calculateShape(shape)
+        }
+
+        for (let i = 0; i < calculateLast.length; i ++) {
+            const shape = calculateLast[i]
+            totalStr += calculateShape(shape)
         }
     }
 
     // Set code and remove last comma
-    saveAsCode.value = str.slice(0, -1)
+    saveAsCode.value = totalStr.slice(0, -1)
 }
 
 function generateFinalImage() {
