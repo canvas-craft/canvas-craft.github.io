@@ -16,9 +16,14 @@ function generateSaveCode() {
             if (shape.line && !includeLines.checked) continue
             if (shape.hidden && !includeHidden.checked) continue
 
+            let x = shape.x
+            let y = shape.y
             let w = shape.w
             let h = shape.h
+
             if (shape.line) {
+                if (shape.invertX < 0) x += w
+                if (shape.invertY < 0) y += h
                 w *= shape.invertX
                 h *= shape.invertY
             }
@@ -28,7 +33,7 @@ function generateSaveCode() {
                 else str += '\'block\','
             }
 
-            str += shape.x + ',' + shape.y + ',' + w + ',' + h + ','
+            str += x + ',' + y + ',' + w + ',' + h + ','
             if (includeProperties.checked) {
                 if (shape.property) {
                     if (surroundProperty.checked) str += '\'' + shape.property + '\','
