@@ -1173,7 +1173,9 @@ a {
 
 @media screen and (max-width: 900px) {
     #text {
-        width: 100%
+        width: 100%;
+        left: 0;
+        transform: translateX(0);
     }
 
     #right {
