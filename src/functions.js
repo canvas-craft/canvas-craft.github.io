@@ -208,14 +208,13 @@ function syntaxHighlightJavaScriptCode(code) {
     const main = code => {
         const data = {
             multi: /`[\s\S]*?`/,
-            regex: /\/.+?\/[gim]*/,
             comment: /\/\*[\s\S]*?\*\/|\/\/.*/,
             string: /".*?"|'.*?'/}
-        const total = new RegExp('(' + data.multi.source + '|' + data.string.source + '|' + data.comment.source + '|' + data.regex.source + ')')
+        const total = new RegExp('(' + data.multi.source + '|' + data.string.source + '|' + data.comment.source + ')')
 
         return code.split(total).map((e, i) => i % 2 ? data.multi.test(e) ? e.split(/(\${.*?})/).map(
-            (e, i) => i % 2 ? loop(e) : span('string', e)).join('') : data.comment.test(e) ? span('comment', e) :
-            data.regex.test(e) ? span('regex', e) : span('string', e) : loop(e)).join('')
+            (e, i) => i % 2 ? loop(e) : span('string', e)).join('') :
+            data.comment.test(e) ? span('comment', e) : span('string', e) : loop(e)).join('')
     }
 
     const loop = (code, index = 0) => {
@@ -225,7 +224,7 @@ function syntaxHighlightJavaScriptCode(code) {
             {class: 'builtin', regex: /\b(eval|isFinite|isNaN|parseFloat|parseInt|decodeURI|decodeURIComponent|encodeURI|encodeURIComponent|escape|unescape)\b/},
             {class: 'function', regex: /\b(\w+\()/, item: /\w+/},
             {class: 'variable', regex: /\b(\w+)\b/},
-            {class: 'operator', regex: /([\/*+<>%=-?:]+)/}
+            {class: 'operator', regex: /([\/\\*+<>%=?:\{\}\(\)\-]+)/}
         ]
 
         return code.split(list[index].regex).map((e, i) => i % 2 ? list[index].item ? e.replace(
@@ -501,7 +500,7 @@ function addNewLayer(insertIndex) {
     collapse.textContent = 'Collapse'
     hide.textContent = 'Hide'
     insert.textContent = 'New Layer'
-    move.textContent = 'Sink'
+    move.textContent = 'Drop'
     layer.sink = move
 
     name.value = 'Layer ' + layers.length
@@ -1098,6 +1097,7 @@ function applyInfoToShapePanel(div, update = false) {
                         div.shape.activeRemix = i
                         div.shape.activePreset = code.preset
                         applyInfoToShapePanel(div, true)
+                        div.shape.drawOnShape()
                     }
                     popupChoice.appendChild(button)
                 }
@@ -1115,12 +1115,12 @@ function applyInfoToShapePanel(div, update = false) {
             asDefault.onmousedown = () => {
                 popup.classList.add('open')
 
-                popupText.textContent = 'Set "' + name + '" as Default'
+                popupText.textContent = 'Set "'+name+'" as Default'
                 popupChoice.innerHTML = ''
 
                 // Confirm text
                 const confirm = document.createElement('div')
-                confirm.textContent = 'From now on, all shapes will be given the "' + name + '" template as default.'
+                confirm.innerHTML = 'From now on, all shapes will be given the <span class=code>'+name +'</span> template by default.'
                 popupChoice.appendChild(confirm)
 
                 // Confirm
@@ -1148,7 +1148,7 @@ function applyInfoToShapePanel(div, update = false) {
 
             // Function text
             const codeName = document.createElement('div')
-            codeName.innerHTML = '<span style="color:var(--keyword)">function</span> <span style="color:var(--function)">draw</span><span style="color:var(--operator)">(</span><span style="color:var(--variable)">x</span>, <span style="color:var(--variable)">y</span>, <span style="color:var(--variable)">color</span><span style="color:var(--operator)">)</span> <span style="color:var(--operator)">{</span>'
+            codeName.innerHTML = '<span style="color:var(--keyword)">function</span> <span style="color:var(--function)">draw</span><span style="color:var(--operator)">(</span><span class=param onmouseover=helpChange("pixelX")>x</span>, <span class=param onmouseover=helpChange("pixelY")>y</span>, <span class=param onmouseover=helpChange("pixelColor")>color</span>, <span class=param onmouseover=helpChange("pixelSize")>size</span><span style="color:var(--operator)">)</span> <span style="color:var(--operator)">{</span>'
             codeContain.appendChild(codeName)
 
             // Textarea code box
@@ -1166,12 +1166,14 @@ function applyInfoToShapePanel(div, update = false) {
                 // Syntax highlight
                 codePre.innerHTML = syntaxHighlightJavaScriptCode(codeTextarea.value + '\n')
 
+                // Set height
+                codeTextarea.style.height = '3px'
+                codeTextarea.style.height = (codePre.scrollHeight + 3) + 'px'
+
                 // Set background code
                 div.shape.remixes[div.shape.activeRemix].code = codeTextarea.value
             }
             codeTextarea.oninput = () => change()
-            change()
-
             codeTextarea.onscroll = () => {
                 codePre.scrollTop = codeTextarea.scrollTop
                 codePre.scrollLeft = codeTextarea.scrollLeft
@@ -1186,6 +1188,8 @@ function applyInfoToShapePanel(div, update = false) {
             const ending = document.createElement('div')
             ending.innerHTML = '<span style="color:var(--operator)">}</span>'
             codeContain.appendChild(ending)
+
+            change()
 
             // Error
             const error = document.createElement('div')
@@ -1220,11 +1224,18 @@ function applyInfoToShapePanel(div, update = false) {
                 ok.style.padding = '0'
                 ok.style.transitionDuration = '.6s'
 
+                // Confirm text
+                const confirmText = document.createElement('div')
+                const DIVNAME = 'You are adding this texture to the list of templates. Any shape in CanvasCraft will be able to access it.'
+                confirmText.textContent = DIVNAME
+
                 // Name box
                 const input = document.createElement('input')
                 input.style.backgroundColor = '#111'
                 input.className = 'wide'
                 input.placeholder = 'Name this template'
+                let nameExists = {}
+                let shapesArr = []
                 input.oninput = () => {
                     if (input.value.length) {
                         ok.style.opacity = '1'
@@ -1234,19 +1245,65 @@ function applyInfoToShapePanel(div, update = false) {
                         ok.style.opacity = '0'
                         ok.style.padding = '0'
                     }
+
+                    nameExists = {}
+                    for (let i = 0; i < codes.length; i ++) {
+                        const code = codes[i]
+                        if (input.value == code.name) {
+                            nameExists = {name: code.name, idx: i}
+                            break
+                        }
+                    }
+                    if (nameExists.name) {
+                        shapesArr = []
+                        for (let i = 0; i < layers.length; i ++) {
+                            const layer = layers[i].arr
+                            for (let j = 0; j < layer.length; j ++) {
+                                const shape = layer[j]
+                                if (input.value == codes[shape.activePreset].name)
+                                    shapesArr.push(shape)
+                            }
+                        }
+
+                        popupText.textContent = 'Just one minute...'
+                        let shapesWithThisPreset = shapesArr.length
+                        const many = shapesWithThisPreset > 1
+                        confirmText.innerHTML = 'It seems like this preset already exists. You can override the <span class=code>'+nameExists.name+'</span> preset by pressing Confirm, but remember that this cannot be undone. '+(shapesWithThisPreset?'There '+(many?'are':'is')+' currently '+shapesWithThisPreset+' shape'+(many?'s':'')+' that '+(many?'have':'has')+' this preset. By continuing, '+(many?'these shapes':'the shape')+' will be updated with the new code. Do you really want to do this?':'There are no shapes that are currently using this preset.')
+                    }
+                    else {
+                        popupText.textContent = 'Save as a template'
+                        confirmText.innerHTML = DIVNAME
+                    }
                 }
                 popupChoice.appendChild(input)
-
-                // Confirm text
-                const div = document.createElement('div')
-                div.textContent = 'You are adding this texture to the list of templates. Any shape in CanvasCraft will be able to access it.'
-                popupChoice.appendChild(div)
+                popupChoice.appendChild(confirmText)
 
                 // Confirm button
                 ok.onmousedown = () => {
                     if (!input.value.length) return
                     popup.classList.remove('open')
-                    codes.push({name: input.value, code: codeTextarea.value})
+
+                    if (nameExists.name) {
+                        const presetToChange = codes[nameExists.idx]
+                        presetToChange.code = codeTextarea.value
+
+                        // Update all shapes with new preset
+                        for (let i = 0; i < shapesArr.length; i ++) {
+                            const shape = shapesArr[i]
+                            shape.addRemix(presetToChange, nameExists.idx)
+                            shape.drawOnShape()
+                        }
+                    }
+
+                    else {
+                        codes.push({name: input.value, code: codeTextarea.value})
+                        div.shape.activePreset = codes.length - 1
+
+                        const activeRemix = div.shape.remixes[div.shape.activeRemix]
+                        activeRemix.name = input.value + ' ' + div.shape.remixes.length + 1
+                        activeRemix.preset = div.shape.activePreset
+                        applyInfoToShapePanel(div, true)
+                    }
                 }
 
                 popupChoice.appendChild(ok)

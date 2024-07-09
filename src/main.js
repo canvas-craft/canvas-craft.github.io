@@ -122,7 +122,7 @@ let cell = 1
 let time = 0
 let camX = 0
 let camY = 0
-let drawIterations = 500
+let drawIterations = 10000
 let defaultColor = [50, 230, 90]
 
 const cvs = document.getElementById('cvs')
@@ -169,12 +169,14 @@ const splashClose = document.getElementById('splashClose')
 const changelog = document.getElementById('changelog')
 const aboutSection = document.getElementById('aboutSection')
 const changelogSection = document.getElementById('changelogSection')
+const helpSplash = document.getElementById('helpSplash')
+const helpSection = document.getElementById('helpSection')
 const openSplash = document.getElementById('openSplash')
 
 openSplash.onmousedown = () => splash.classList.remove('closed')
 
 centerSplash.onmousedown = () => {
-    if (performance.now() < 2500) return
+    if (performance.now() < 1000) return
 
     splash.classList.add('closed')
     if (settings.classList.contains('open')) return
@@ -206,6 +208,7 @@ about.onmousedown = () => {
     splashPanel.scrollTo(0, 0)
     aboutSection.style.display = 'block'
     changelogSection.style.display = 'none'
+    helpSection.style.display = 'none'
 }
 
 changelog.onmousedown = () => {
@@ -213,6 +216,15 @@ changelog.onmousedown = () => {
     splashPanel.scrollTo(0, 0)
     changelogSection.style.display = 'flex'
     aboutSection.style.display = 'none'
+    helpSection.style.display = 'none'
+}
+
+helpSplash.onmousedown = () => {
+    splashPanel.classList.add('open')
+    splashPanel.scrollTo(0, 0)
+    helpSection.style.display = 'flex'
+    aboutSection.style.display = 'none'
+    changelogSection.style.display = 'none'
 }
 
 splashClose.onmousedown = () => {
@@ -345,8 +357,8 @@ textureRender.value = drawIterations
 textureRender.oninput = () => {
     let val = Number(textureRender.value)
     if (!val) return
-    if (val > 10000) val = 50000
-    textureRender.value = val
+    if (val > 50000) val = 50000
+    if (val > 1) textureRender.value = val
 }
 textureRender.onchange = () => {
     let val = Number(textureRender.value)
@@ -369,8 +381,8 @@ copyCodeButton.onmousedown = () => {
 }
 
 let codes = [
-    {name: 'Basic', code: 'const r = color.r\nconst g = color.g\nconst b = color.b\nconst a = 1\n\nreturn \'rgb(\'+r+\',\'+g+\',\'+b+\',\'+a+\')\''},
-    {name: 'Random', code: 'const r = color.r + Math.random() * 50 - 25\nconst g = color.g + Math.random() * 50 - 25\nconst b = color.b + Math.random() * 50 - 25\nconst a = 1\n\nreturn \'rgb(\'+r+\',\'+g+\',\'+b+\',\'+a+\')\''}
+    {name: 'Basic', code: 'let r = color.r\nlet g = color.g\nlet b = color.b\nlet a = 1\n\nreturn \'rgb(\'+r+\',\'+g+\',\'+b+\',\'+a+\')\''},
+    {name: 'Random', code: 'let r = color.r + Math.random() * 50 - 25\nlet g = color.g + Math.random() * 50 - 25\nlet b = color.b + Math.random() * 50 - 25\nlet a = 1\n\nreturn \'rgb(\'+r+\',\'+g+\',\'+b+\',\'+a+\')\''}
 ]
 
 const m = {

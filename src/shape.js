@@ -22,7 +22,7 @@ class Shape {
         this.imageOftY = 0
         this.imageScale = 1
 
-        this.shorthand = {}
+        this.shorthand = []
         this.div = 0
         this.hoverCommand = false
         this.layer = selectedLayer
@@ -172,8 +172,18 @@ class Shape {
             const box = (X, icon, func) => {
                 let sh = 70 * progress
                 const shrink = .47
-                const x = pos.x + this.w / 2 * scale + X * (gap + sh) * shrink
-                const y = pos.y - progress * (gap + sh / 2)
+
+                let Xx = pos.x + this.w / 2 * scale
+                let Yy = pos.y - progress * (gap + sh / 2)
+
+                if (Xx < sh * 2) Xx = sh * 2
+                if (Yy < sh) Yy = sh
+                if (Xx > cvs.width - 3 * (sh + gap) * shrink) Xx = cvs.width - 3 * (sh + gap) * shrink
+                if (Yy > cvs.height - sh) Yy = cvs.height - sh
+
+                const x = Xx + X * (gap + sh) * shrink
+                const y = Yy
+    
                 const BOX = {}
 
                 if (progress >= 1 &&
@@ -287,20 +297,20 @@ class Shape {
         }
 
         // Default function without code applied
-        let fillFunction = (x, y, color) => {return plainColor}
+        let fillFunction = (x, y, color, size) => {return plainColor}
 
         // Add code to function
         const calculateFillFunction = () => {
             try {
-                let func = new Function('x', 'y', 'color', this.remixes[this.activeRemix].code)
-                fillFunction = (x, y, color) => {
+                let func = new Function('x', 'y', 'color', 'size', this.remixes[this.activeRemix].code)
+                fillFunction = (x, y, color, size) => {
                     try {
-                        return func(x, y, color)
+                        return func(x, y, color, size)
                     }
 
                     // Runtime error check
                     catch (error) {
-                        func = (x, y, color) => {return plainColor}
+                        func = (x, y, color, size) => {return plainColor}
                         this.error = true
                         drawPlain()
                         this.div.error.textContent = 'Error: ' + error.message
@@ -330,7 +340,8 @@ class Shape {
                     // Run the function for every pixel
                     this.ctx.fillStyle = fillFunction(
                         this.runX, this.runY,
-                        {r: this.color[0], g: this.color[1], b: this.color[2]})
+                        {r: this.color[0], g: this.color[1], b: this.color[2]},
+                        {w: this.w, h: this.h})
                     this.ctx.fillRect(this.runX, this.runY, 1, 1)
 
                     // Canel process if at end
@@ -402,15 +413,11 @@ class Shape {
 
         for (let i = 0; i < this.shorthand.length; i ++) {
             const box = this.shorthand[i]
-            ctx.fillStyle = box.color
-
-            ctx.fillRect(box.x, box.y, box.s, box.s)
-
             const imgSize = Math.max(0, box.s - pad * 2)
-            ctx.drawImage(
-                icons[box.icon],
-                box.x + pad, box.y + pad,
-                imgSize, imgSize)
+
+            ctx.fillStyle = box.color
+            ctx.fillRect(box.x, box.y, box.s, box.s)
+            ctx.drawImage(icons[box.icon], box.x + pad, box.y + pad, imgSize, imgSize)
         }
     }
 }
