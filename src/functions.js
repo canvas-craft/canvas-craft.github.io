@@ -98,7 +98,7 @@ function generateFinalImage() {
     let Y2 = 'none'
     for (let i = 0; i < layers.length; i ++) {
         const layer = layers[i].arr
-        if (layers[i].hidden) continue
+        if (layers[i].hidden && !hiddenBoundary.checked) continue
         for (let j = 0; j < layer.length; j ++) {
             const shape = layer[j]
             if (shape.line || (shape.hidden && !hiddenBoundary.checked)) continue
