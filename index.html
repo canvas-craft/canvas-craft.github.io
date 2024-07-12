@@ -84,6 +84,11 @@
                         <input type = checkbox checked = unchecked id = transparentBg>
                         <span class = checkmark></span>
                     </label>
+                    <label class = checkcontainer>
+                        Include hidden shapes to boundary
+                        <input type = checkbox checked = unchecked id = hiddenBoundary>
+                        <span class = checkmark></span>
+                    </label>
                     <div id = saveAsImageBox></div>
                     <button class = normal id = downloadImage>Download</button>
                     <h3>Save as File</h3>
@@ -168,7 +173,7 @@
                 <img src = src/sparkle.svg id = sparkle3 class = sparkle>
             </div>
             <div id = text>
-                <h4>CanvasCraft v2.0.0-beta.1.6</h4>
+                <h4>CanvasCraft v2.0.0-beta.2.0</h4>
                 <button class = start id = aboutCanvasCraft>About</button>
                 <a class = start href = https://github.com/canvas-craft/canvas-craft.github.io target = _blank>GitHub</a>
                 <button class = start id = changelog>Changelog</button>
@@ -198,6 +203,12 @@
                     creators of many skill levels. Let your imagination go wild! 💥</p>
                 </div>
                 <div id = changelogSection>
+                    <h1>12.07.2024</h1>
+                    <h3>v2.0.0-beta.2.0</h3>
+                    <span>&bull; Added an "Include hidden shapes to boundary" option for downloading images</span>
+                    <span>&bull; Marked the <span class = code>0, 0</span> axis on grid mode</span>
+                    <span>&bull; Created new argument <span class = code>pos {x, y}</span> in the code box</span>
+                    <span>&bull; A new pro-tip will appear every time you use CanvasCraft</span>
                     <h1>09.07.2024</h1>
                     <h3>v2.0.0-beta.1.6</h3>
                     <span>&bull; Fixed texture render editing bugs</span>
@@ -212,7 +223,7 @@
                     <span>&bull; Shorthand controls now stay on the screen</span>
                     <span>&bull; Implemented CanvasCraft documentation</span>
                     <h1>28.06.2024</h1>
-                    <h3>v2.0.0-beta.5</h3>
+                    <h3>v2.0.0-beta.0.5</h3>
                     <span>&bull; Fixed some mobile glitches</span>
                     <span>&bull; Reimplemented the ability to upload images, plus new controls</span>
                     <span>&bull; Saving files now records the shape's name</span>
@@ -271,6 +282,7 @@
                     <h3>The CanvasCraft documentation - in development</h3>
                     <input class = wide placeholder = 'Write your query here' id = querySearch>
                     <div id = queryResult></div>
+                    <p>Can't find what you're looking for? Get in touch at <a href = mailto:hello@joachimford.uk>hello@joachimford.uk</a>!</p>
                 </div>
             </div>
         </div>
