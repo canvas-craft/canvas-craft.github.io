@@ -3,7 +3,7 @@
 </p>
 
 *<p align="center">Build game worlds in minutes by combining art with code</p>*
-# <p align="center">**CanvasCraft v2.0.0-beta.1.6**</p>
+# <p align="center">**CanvasCraft v2.0.0-beta.2.0**</p>
 ## <p align="center">Try it today at [canvas-craft.github.io](https://canvas-craft.github.io)</p>
 
 Welcome to **CanvasCraft**, the comprehensive creation tool for the web 🚀\
