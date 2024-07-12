@@ -1,5 +1,13 @@
 'use strict'
 
+function reSyntaxHighlight() {
+    spans = document.getElementsByClassName('code')
+    for (let i = 0; i < spans.length; i ++) {
+        const span = spans[i]
+        span.innerHTML = syntaxHighlightJavaScriptCode(span.textContent)
+    }
+}
+
 function isVertical(line) {
     const dx = line.x2 - line.x1
     const dy = line.y2 - line.y1
@@ -93,7 +101,7 @@ function generateFinalImage() {
         if (layers[i].hidden) continue
         for (let j = 0; j < layer.length; j ++) {
             const shape = layer[j]
-            if (shape.line || shape.hidden) continue
+            if (shape.line || (shape.hidden && !hiddenBoundary.checked)) continue
             if (shape.x < X || X == 'none') X = shape.x
             if (shape.y < Y || Y == 'none') Y = shape.y
             if (shape.x + shape.w > X2 || X2 == 'none') X2 = shape.x + shape.w
@@ -1148,7 +1156,7 @@ function applyInfoToShapePanel(div, update = false) {
 
             // Function text
             const codeName = document.createElement('div')
-            codeName.innerHTML = '<span style="color:var(--keyword)">function</span> <span style="color:var(--function)">draw</span><span style="color:var(--operator)">(</span><span class=param onmouseover=helpChange("pixelX")>x</span>, <span class=param onmouseover=helpChange("pixelY")>y</span>, <span class=param onmouseover=helpChange("pixelColor")>color</span>, <span class=param onmouseover=helpChange("pixelSize")>size</span><span style="color:var(--operator)">)</span> <span style="color:var(--operator)">{</span>'
+            codeName.innerHTML = '<span style="color:var(--keyword)">function</span> <span style="color:var(--function)">draw</span><span style="color:var(--operator)">(</span><span class=param onmouseover=helpChange("pixelX")>x</span>, <span class=param onmouseover=helpChange("pixelY")>y</span>, <span class=param onmouseover=helpChange("pixelColor")>color</span>, <span class=param onmouseover=helpChange("shapePos")>pos</span><span style="color:var(--operator)">, <span class=param onmouseover=helpChange("pixelSize")>size</span><span style="color:var(--operator)">)</span> <span style="color:var(--operator)">{</span>'
             codeContain.appendChild(codeName)
 
             // Textarea code box

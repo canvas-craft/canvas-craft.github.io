@@ -297,20 +297,20 @@ class Shape {
         }
 
         // Default function without code applied
-        let fillFunction = (x, y, color, size) => {return plainColor}
+        let fillFunction = (x, y, color, pos, size) => {return plainColor}
 
         // Add code to function
         const calculateFillFunction = () => {
             try {
-                let func = new Function('x', 'y', 'color', 'size', this.remixes[this.activeRemix].code)
-                fillFunction = (x, y, color, size) => {
+                let func = new Function('x', 'y', 'color', 'pos', 'size', this.remixes[this.activeRemix].code)
+                fillFunction = (x, y, color, pos, size) => {
                     try {
-                        return func(x, y, color, size)
+                        return func(x, y, color, pos, size)
                     }
 
                     // Runtime error check
                     catch (error) {
-                        func = (x, y, color, size) => {return plainColor}
+                        func = (x, y, color, pos, size) => {return plainColor}
                         this.error = true
                         drawPlain()
                         this.div.error.textContent = 'Error: ' + error.message
@@ -341,6 +341,7 @@ class Shape {
                     this.ctx.fillStyle = fillFunction(
                         this.runX, this.runY,
                         {r: this.color[0], g: this.color[1], b: this.color[2]},
+                        {x: this.x, y: this.y},
                         {w: this.w, h: this.h})
                     this.ctx.fillRect(this.runX, this.runY, 1, 1)
 

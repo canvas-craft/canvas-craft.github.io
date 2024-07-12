@@ -67,20 +67,30 @@ function loop() {
     const amt = Math.ceil(size / (scale * cell))
     const gridSize = cell
     const limit = 200
-    const thick = 2
+    const thick = 2 + scale * .01
 
-    if (amt < limit && gridOn.checked) {
+    if (gridOn.checked) {
         let alpha = limit / amt / 20
         if (alpha > .7) alpha = .7
         ctx.fillStyle = 'rgb(255,255,255,'+alpha+')'
-        for (let i = Math.ceil(camY); i < amt + Math.ceil(camY); i ++) {
-            const pos = pixel(0, Math.ceil(i - amt / 2) * gridSize)
-            ctx.fillRect(0, pos.y - thick / 2, w, thick)
+        if (amt < limit) {
+            for (let i = Math.ceil(camY); i < amt + Math.ceil(camY); i ++) {
+                const y = Math.ceil(i - amt / 2) * gridSize
+                if (!y) continue
+                const pos = pixel(0, y)
+                ctx.fillRect(0, pos.y - thick / 2, w, thick)
+            }
+            for (let i = Math.ceil(camX); i < amt + Math.ceil(camX); i ++) {
+                const x = Math.ceil(i - amt / 2) * gridSize
+                if (!x) continue
+                const pos = pixel(x, 0)
+                ctx.fillRect(pos.x - thick / 2, 0, thick, h)
+            }
         }
-        for (let i = Math.ceil(camX); i < amt + Math.ceil(camX); i ++) {
-            const pos = pixel(Math.ceil(i - amt / 2) * gridSize, 0)
-            ctx.fillRect(pos.x - thick / 2, 0, thick, h)
-        }
+
+        const pos = pixel(0, 0)
+        ctx.fillRect(pos.x - thick, 0, thick * 2, h)
+        ctx.fillRect(0, pos.y - thick, w, thick * 2)
     }
 
     updateScreen = false
@@ -125,6 +135,9 @@ let camY = 0
 let drawIterations = 10000
 let defaultColor = [50, 230, 90]
 
+let spans = []
+reSyntaxHighlight()
+
 const cvs = document.getElementById('cvs')
 const ctx = cvs.getContext('2d')
 const screen = document.getElementById('screen')
@@ -158,6 +171,7 @@ const verticalLast = document.getElementById('verticalLast')
 const selectAsCodeLayer = document.getElementById('selectAsCodeLayer')
 const saveAsImageBox = document.getElementById('saveAsImageBox')
 const transparentBg = document.getElementById('transparentBg')
+const hiddenBoundary = document.getElementById('hiddenBoundary')
 const downloadImage = document.getElementById('downloadImage')
 const downloadFile = document.getElementById('downloadFile')
 const uploadFile = document.getElementById('uploadFile')
@@ -176,7 +190,7 @@ const openSplash = document.getElementById('openSplash')
 openSplash.onmousedown = () => splash.classList.remove('closed')
 
 centerSplash.onmousedown = () => {
-    if (performance.now() < 1000) return
+    if (performance.now() < 1000 || splash.classList.contains('closed')) return
 
     splash.classList.add('closed')
     if (settings.classList.contains('open')) return
@@ -201,6 +215,16 @@ centerSplash.onmousedown = () => {
     }
     expert.textContent = 'Expert'
     popupChoice.appendChild(expert)
+
+    const tip = document.createElement('div')
+    const options = [
+        'To create a batch of shapes with the same colour, simply use the "Save Default Colour" button. You can customise this feature in the settings.',
+        'Tired of the copying templates for multiple shapes? Select the "Set template as default" button for an automatic assignment.',
+        'You can ask for advanced help by typing your query into CanvasCraft\'s homepage.',
+    ]
+    tip.textContent = 'Pro-tip: ' + options[Math.floor(Math.random() * options.length)]
+    tip.style.color = '#fb0'
+    popupChoice.appendChild(tip)
 }
 
 about.onmousedown = () => {
@@ -236,7 +260,10 @@ downloadFile.onmousedown = () => generateDownloadFile()
 
 surroundProperty.checked = false
 transparentBg.checked = false
+hiddenBoundary.checked = false
+
 transparentBg.onchange = () => generateFinalImage()
+hiddenBoundary.onchange = () => generateFinalImage()
 
 let chosenLayer = 'all'
 
