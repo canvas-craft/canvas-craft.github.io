@@ -9,7 +9,12 @@
     </head>
     <body>
         <div id = everything>
-            <div id = screen><div id = container><canvas id = cvs></canvas></div></div>
+            <div id = screen>
+                <div id = container>
+                    <canvas id = cvs></canvas>
+                    <div id = details></div>
+                </div>
+            </div>
             <div id = quickButtons>
                 <button class = quickButton id = helpButton onmousedown = toggleHelpMenu()>
                     <img src = src/help.svg>
@@ -26,14 +31,17 @@
             </div>
             <div id = right class = closed>
                 <div id = hideRight onmousedown = sideHandle()><img src = src/close.svg></div>
-                <div id = rightContent>
-                    <h4 id = layerSwitch onmousedown = closeLayers()>
-                        <img src = src/close.svg>Layers and Shapes
-                    </h4>
-                    <div id = layers></div>
+                <div id = top>
+                    <div id = topContent>
+                        <h4 id = layerSwitch onmousedown = closeLayers()>
+                            <img src = src/close.svg>Layers and Shapes
+                        </h4>
+                        <div id = layers></div>
+                    </div>
                 </div>
                 <div id = base class = closed>
                     <div id = hideBase onmousedown = baseHandle()><img src = src/close.svg></div>
+                    <div id = hideBaseLarge onmousedown = baseHandle(true)><img src = src/close.svg></div>
                     <div id = baseContent>
                     </div>
                 </div>
@@ -49,6 +57,15 @@
                         <input type = checkbox checked = checked id = gridOn>
                         <span class = checkmark></span>
                     </label>
+                    <label class = checkcontainer class = checked>
+                        Invert grid
+                        <input type = checkbox checked = checked id = whiteGrid>
+                        <span class = checkmark></span>
+                    </label>
+                    Choose a background colour
+                    <button id = bgColor class = 'colorPick small'>
+                        <div id = bgText></div>
+                    </button>
                     <button id = openSplash class = small>Open Splash Screen</button>
 
                     <h3>Shapes</h3>
@@ -62,7 +79,7 @@
                         <input type = checkbox checked = unchecked id = defaultBrush>
                         <span class = checkmark></span>
                     </label>
-                    <button id = settingColor class = colorPick>
+                    <button id = settingColor class = 'colorPick small'>
                         <div id = settingColorText></div>
                     </button>
                     Texture render speed <input class = wide id = textureRender>
@@ -173,7 +190,7 @@
                 <img src = src/sparkle.svg id = sparkle3 class = sparkle>
             </div>
             <div id = text>
-                <h4>CanvasCraft v2.0.0-beta.2.0</h4>
+                <h4>CanvasCraft v2.0.0-beta.3.1</h4>
                 <button class = start id = aboutCanvasCraft>About</button>
                 <a class = start href = https://github.com/canvas-craft/canvas-craft.github.io target = _blank>GitHub</a>
                 <button class = start id = changelog>Changelog</button>
@@ -203,6 +220,19 @@
                     creators of many skill levels. Let your imagination go wild! 💥</p>
                 </div>
                 <div id = changelogSection>
+                    <h1>20.07.2024</h1>
+                    <h3>v2.0.0-beta.3.1</h3>
+                    <span>&bull; Extended documentation and pro-tips</span>
+                    <span>&bull; Enhanced grid mode</span>
+                    <span>&bull; You will now be able to read the coordinates and dimensions of the shape as it is created</span>
+                    <span>&bull; Edit the world's background colour in the settings</span>
+                    <span>&bull; Mobile support</span>
+                    <span>&bull; Introduced a new "split layer" feature</span>
+                    <span>&bull; Converted the remixes, default colour and default template buttons to icons for a cleaner user interface</span>
+                    <span>&bull; Small edits, including changes to the colour theme, and a hide icon on shape previews</span>
+                    <span>&bull; Added a details panel</span>
+                    <span>&bull; Added an extra control for the side panels</span>
+                    <span>&bull; Lines are no longer created with a random colour</span>
                     <h1>12.07.2024</h1>
                     <h3>v2.0.0-beta.2.0</h3>
                     <span>&bull; Added an "Include hidden shapes to boundary" option for downloading images</span>
