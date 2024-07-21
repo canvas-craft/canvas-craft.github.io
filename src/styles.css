@@ -9,14 +9,16 @@
 }
 
 :root {
-    --shadow: 2px 4px 10px #000;
-    --border: 2px solid #0b9;
+    --border: 1.5px solid #0b9;
     --highlight: #0fb;
-    --bright: 2px solid #0fb;
+    --bright: 1.5px solid #0fb;
     --heading: #2cf;
     --none: 2px transparent solid;
     --helpButton: #084;
     --notice: #164;
+    --bg: #191f1f;
+    --hover: #292f2f;
+    --hover2: #393f3f;
 
     /* Syntax highlight */
     --keyword: #c8f;
@@ -37,6 +39,7 @@ body {
     background-color: #000;
     height: 100%;
     overflow: hidden;
+    box-sizing: content-box;
     color: #fff
 }
 
@@ -59,6 +62,20 @@ h1, h2, h3, h4 {
     -moz-user-select: none;
     -o-user-select: none;
     user-select: none;
+}
+
+#container #details {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #ddd;
+    border: 1.5px solid #000;
+    border-radius: 5px;
+    color: #000;
+    padding: 5px 10px;
+    font-size: 18px;
+    font-family: code;
 }
 
 canvas {
@@ -98,7 +115,7 @@ canvas {
     width: 50%;
     opacity: 0;
     transform: translateX(-50%) translateY(-50%) rotate(10deg) scale(.5);
-    background-color: #222;
+    background-color: var(--bg);
     border-radius: 20px;
     transition: .5s cubic-bezier(.2,1,.1,1);
     padding: 3% 5%;
@@ -116,7 +133,7 @@ canvas {
     align-items: center;
     justify-content: center;
     font-size: 25px;
-    background-color: #333;
+    background-color: var(--hover);
 }
 
 #popClose:hover {
@@ -178,7 +195,7 @@ canvas {
     width: 40%;
     min-width: 450px;
     flex: 1 0 auto;
-    transition: .4s cubic-bezier(.6, 0, .4, 1);
+    transition: .3s cubic-bezier(.6, 0, .4, 1);
     background-color: #000;
     height: 100%;
     border-left: var(--border);
@@ -218,14 +235,17 @@ canvas {
     cursor: pointer;
 }
 
-#hideRight img{
+#hideRight img {
     transition: .3s;
 }
 
-#rightContent {
+#top {
     overflow: scroll;
+    height: 100%;
+}
+
+#topContent {
     padding: 20px;
-    height: 100%
 }
 
 #base {
@@ -235,7 +255,13 @@ canvas {
     flex: 1 0 auto;
     border-top: var(--border);
     background-color: #111;
-    transition: .4s;
+    transition: .3s;
+}
+
+#hideBaseLarge.flip {
+    right: 10px;
+    top: -2px;
+    transform: scaleY(-1) translateY(0);
 }
 
 #base.closed {
@@ -248,7 +274,7 @@ canvas {
     transform: rotate(-90deg)
 }
 
-#hideBase {
+#hideBase, #hideBaseLarge {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -268,15 +294,24 @@ canvas {
     z-index: 1;
 }
 
-#hideBase:hover {
-    background-color: #222;
+#hideBaseLarge {
+    right: 120px;
+    transition: .3s;
+}
+
+#hideBase:hover, #hideBaseLarge:hover {
+    background-color: var(--bg);
     cursor: pointer;
 }
 
-#hideBase img {
+#hideBase img, #hideBaseLarge img {
     transition: .3s;
     transform: rotate(90deg);
     height: 13px
+}
+
+#hideBaseLarge img {
+    transform: rotate(-90deg);
 }
 
 #baseContent {
@@ -328,7 +363,7 @@ canvas {
 .layer {
     position: relative;
     overflow: hidden;
-    background-color: #222;
+    background-color: var(--bg);
     border-radius: 5px;
     padding: 10px;
     margin-top: 10px;
@@ -352,14 +387,14 @@ canvas {
     font-family: code;
     outline: none;
     padding: 0 0 0 10px;
-    background-color: #222;
+    background-color: var(--hover);
     border: none;
     border-radius: 5px;
     color: #fff;
 }
 
 .layerTitle:hover {
-    background-color: #333;
+    background-color: var(--hover2);
 }
 
 .layerTitle:focus {
@@ -369,7 +404,7 @@ canvas {
 
 .layerHeader button {
     width: 100%;
-    background-color: #333;
+    background-color: var(--hover);
     font-size: 12px;
     color: #fff;
     border-radius: 3px;
@@ -379,7 +414,7 @@ canvas {
 }
 
 .layerHeader button:hover {
-    background-color: #444;
+    background-color: var(--hover2);
     cursor: pointer;
 }
 
@@ -412,14 +447,14 @@ canvas {
     background-color: transparent;
     font-size: 17px;
     font-family: code;
-    background-color: #222;
+    background-color: var(--bg);
     border: none;
     border-radius: 5px;
     color: #fff;
 }
 
 .shapeName:hover {
-    background-color: #333;
+    background-color: var(--hover);
 }
 
 .shapeName:focus {
@@ -435,7 +470,7 @@ canvas {
 
 .codeContain {
     width: 100%;
-    background-color: #222;
+    background-color: var(--bg);
     border-radius: 5px;
     padding: 10px;
     display: flex;
@@ -479,7 +514,7 @@ pre {
 
 .param {
     color: var(--variable);
-    background-color: #333;
+    background-color: var(--hover);
     border-radius: 3px;
 }
 
@@ -494,7 +529,7 @@ pre {
 
 button.wide, button.normal {
     padding: 10px;
-    background-color: #222;
+    background-color: var(--bg);
     color: #fff;
     border: none;
     width: 100%;
@@ -505,7 +540,7 @@ button.wide, button.normal {
 }
 
 button.wide:hover, button.small:hover, .uploadFileLabel:hover {
-    background-color: #333;
+    background-color: var(--hover);
     cursor: pointer;
 }
 
@@ -540,7 +575,7 @@ button.normal:hover {
 button.small, .uploadFileLabel {
     font-size: 18px;
     padding: 10px;
-    background-color: #222;
+    background-color: var(--bg);
     color: #fff;
     border: none;
     width: 500px;
@@ -560,7 +595,7 @@ button.small, .uploadFileLabel {
 }
 
 .smallButton {
-    background-color: #333;
+    background-color: var(--hover);
     border-radius: 3px;
     border: none;
     width: 40px;
@@ -578,6 +613,10 @@ button.small, .uploadFileLabel {
 .smallButton img {
     width: 100%;
     height: 100%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .smallButton img#up {
@@ -597,7 +636,7 @@ button.small, .uploadFileLabel {
 }
 
 .quickButton {
-    background-color: #222;
+    background-color: var(--bg);
     border: var(--border);
     border-radius: 50px;
     width: 50px;
@@ -606,7 +645,7 @@ button.small, .uploadFileLabel {
 }
 
 .quickButton:hover {
-    background-color: #333;
+    background-color: var(--hover);
     cursor: pointer;
 }
 
@@ -622,7 +661,7 @@ button.small, .uploadFileLabel {
 }
 
 .colorPick {
-    padding: 0;
+    padding: 10px 0;
     width: 100%;
     height: 40px;
     border: none;
@@ -641,12 +680,16 @@ button.small, .uploadFileLabel {
     color: #000
 }
 
+#bgColor {
+    border: 1.5px var(--hover) solid;
+}
+
 .colorPick div.light {
     color: #fff
 }
 
 .snippet {
-    background-color: #222;
+    background-color: var(--bg);
     padding: 5px 10px;
     margin-top: 5px;
     display: block;
@@ -682,7 +725,7 @@ button.small, .uploadFileLabel {
 
 #helpMenu {
     text-align: left;
-    background-color: #333;
+    background-color: var(--hover);
     border: var(--border);
     border-radius: 10px;
     color: #fff;
@@ -706,15 +749,15 @@ button.small, .uploadFileLabel {
 }
 
 #settings, #saveScreen {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     padding: 30px;
     background-color: #000;
     opacity: 0;
-    transform: translateX(-50%) translateY(-50%) scale(.95);
+    transform: scale(.95);
     transition: .3s cubic-bezier(.52,0,.31,1.42);
     overflow: hidden;
     z-index: -1;
@@ -724,7 +767,7 @@ button.small, .uploadFileLabel {
 #settings.open, #saveScreen.open {
     z-index: 10;
     opacity: 1;
-    transform: translateX(-50%) translateY(-50%) scale(1);
+    transform: scale(1);
 }
 
 #settings h1, #saveScreen h1 {
@@ -737,7 +780,7 @@ button.small, .uploadFileLabel {
 }
 
 #settingClose, #saveClose {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -784,7 +827,7 @@ button.small, .uploadFileLabel {
 .inputContainer input, input.wide {
     border: none;
     border-radius: 5px;
-    background-color: #222;
+    background-color: var(--bg);
     font-family: font;
     color: #fff;
     outline: none;
@@ -794,7 +837,7 @@ button.small, .uploadFileLabel {
 }
 
 .inputContainer input:hover, input.wide:hover {
-    background-color: #333;
+    background-color: var(--hover);
 }
 
 .center {
@@ -882,18 +925,51 @@ h3.center {
 }
 
 #settingColor {
-    transition: .4s;
-    max-height: 40px;
+    transition: .3s;
+    opacity: 1;
 }
 
 #randomBrushContain.checked ~ #settingColor {
-    opacity: 0;
-    max-height: 0;
+    opacity: .5;
+    transform: scaleY(0);
 }
 
 #small {
     width: 50%;
     align-self: center;
+}
+
+.tiny {
+    width: 60px;
+    height: 40px;
+    padding: 10px;
+}
+
+.reallyTiny {
+    width: 40px;
+    height: 25px;
+    padding: 5px;
+}
+
+.tiny, .reallyTiny {
+    flex: 1 0 auto;
+    background-color: var(--bg);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-family: font;
+    display: flex;
+    justify-content: center;
+    display: inline-block;
+}
+
+.tiny:hover, .reallyTiny:hover {
+    background-color: var(--hover);
+    cursor: pointer;
+}
+
+.tiny img, .reallyTiny img {
+    height: 100%
 }
 
 .code {
@@ -951,14 +1027,12 @@ h3.center {
     height: 100%;
     padding: 50px 10%;
     transition: .8s cubic-bezier(.66,0,.54,1);
-    opacity: 0;
     background-color: #000;
     overflow: scroll;
 }
 
 #splashPanel.open {
     top: 0;
-    opacity: 1;
 }
 
 #splashPanel h2 {
@@ -971,13 +1045,13 @@ h3.center {
 }
 
 #splashPanel .code {
-    background-color: #222;
+    background-color: var(--bg);
     font-size: 17px;
     display: inline-block;
     border-style: solid;
     border-width: 1.3px;
     border-top-color: #444;
-    border-left-color: #222;
+    border-left-color: var(--bg);
     border-right-color: #000;
     border-bottom-color: #000;
 }
@@ -986,24 +1060,28 @@ h3.center {
     position: fixed;
     top: 10px;
     right: 10px;
-    font-size: 30px;
     background-color: #222;
     color: #fff;
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50px;
+    border-radius: 10px;
     border: var(--border);
-    transition: .1s;
+    transition: .1s, opacity .6s;
     cursor: pointer;
+    opacity: 0;
+}
+
+#splashPanel.open #splashClose {
+    opacity: 1;
 }
 
 #splashClose:hover {
     transform: scale(1.1);
-    background-color: #333;
+    background-color: var(--hover);
 }
 
 #splashClose img {
@@ -1021,6 +1099,10 @@ h3.center {
 
 a {
     color: #0fb
+}
+
+hr {
+    border: 1px solid #aaa;
 }
 
 #logo {
@@ -1074,7 +1156,7 @@ a {
     width: 100%;
     padding: 5px;
     height: 40px;
-    background: #222;
+    background: var(--bg);
     outline: none;
     border-radius: 5px;
 }
@@ -1089,6 +1171,12 @@ a {
     background: #0fb;
     border: none;
     cursor: pointer;
+}
+
+.dim {
+    text-align: center;
+    width: 100%;
+    color: #bbb
 }
 
 .start {

@@ -2,7 +2,7 @@
 
 function generateDownloadFile() {
     const save = {}
-    save.version = 'canvasCraft-v2.0.0-beta.2.0'
+    save.version = 'canvasCraft-v2.0.0-beta.3.1'
     save.codes = codes
     save.layers = []
 

@@ -6,6 +6,7 @@ const basenavContent = document.getElementById('baseContent')
 
 const handle = document.getElementById('hideRight')
 const handleBase = document.getElementById('hideBase')
+const handleBaseLarge = document.getElementById('hideBaseLarge')
 
 const layerDiv = document.getElementById('layers')
 const layerSwitch = document.getElementById('layerSwitch')
@@ -19,7 +20,25 @@ function sideHandle() {
     resize()
 }
 
-function baseHandle() {
-    basenav.classList.toggle('closed')
+function baseHandle(large = false) {
+    if (large) {
+        if (handleBaseLarge.classList.contains('flip')) {
+            handleBaseLarge.classList.remove('flip')
+            basenav.style.height = '50%'
+        }
+        else {
+            handleBaseLarge.classList.add('flip')
+            basenav.style.height = '100%'
+        }
+    }
+    else {
+        basenav.classList.toggle('closed')
+        basenav.style.height = '50%'
+
+        if (basenav.classList.contains('closed'))
+            handleBaseLarge.classList.add('flip')
+        else handleBaseLarge.classList.remove('flip')
+    }
+
     resize()
 }

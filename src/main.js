@@ -63,34 +63,46 @@ function loop() {
     const w = cvs.width
     const h = cvs.height
     ctx.clearRect(0, 0, w, h)
+    ctx.fillStyle = 'rgb('+backgroundColor[0]+','+backgroundColor[1]+','+backgroundColor[2]+')'
+    ctx.fillRect(0, 0, cvs.width, cvs.height)
     const size = Math.max(cvs.width, cvs.height)
     const amt = Math.ceil(size / (scale * cell))
     const gridSize = cell
-    const limit = 200
-    const thick = 2 + scale * .01
+    const limit = 300
+    const thick = 1.5 + scale * .01
 
     if (gridOn.checked) {
-        let alpha = limit / amt / 20
-        if (alpha > .7) alpha = .7
-        ctx.fillStyle = 'rgb(255,255,255,'+alpha+')'
+        let alpha = limit / amt / 60
+        if (alpha > .3) alpha = .3
+
+        let gridColor = 'rgb(0,0,0,'
+        if (whiteGrid.checked) gridColor = 'rgb(255,255,255,'
+
         if (amt < limit) {
             for (let i = Math.ceil(camY); i < amt + Math.ceil(camY); i ++) {
                 const y = Math.ceil(i - amt / 2) * gridSize
                 if (!y) continue
                 const pos = pixel(0, y)
+
+                ctx.fillStyle = gridColor+alpha+')'
+                if (y % 5 == 0) ctx.fillStyle = gridColor+alpha*2+')'
                 ctx.fillRect(0, pos.y - thick / 2, w, thick)
             }
             for (let i = Math.ceil(camX); i < amt + Math.ceil(camX); i ++) {
                 const x = Math.ceil(i - amt / 2) * gridSize
                 if (!x) continue
                 const pos = pixel(x, 0)
+
+                ctx.fillStyle = gridColor+alpha+')'
+                if (x % 5 == 0) ctx.fillStyle = gridColor+alpha*2+')'
                 ctx.fillRect(pos.x - thick / 2, 0, thick, h)
             }
         }
 
         const pos = pixel(0, 0)
-        ctx.fillRect(pos.x - thick, 0, thick * 2, h)
-        ctx.fillRect(0, pos.y - thick, w, thick * 2)
+        ctx.fillStyle = gridColor+alpha*5+')'
+        ctx.fillRect(pos.x - thick, 0, thick, h)
+        ctx.fillRect(0, pos.y - thick, w, thick)
     }
 
     updateScreen = false
@@ -134,9 +146,15 @@ let camX = 0
 let camY = 0
 let drawIterations = 10000
 let defaultColor = [50, 230, 90]
+let backgroundColor = [0, 0, 0]
+let lineColor = [0, 255, 0]
 
 let spans = []
 reSyntaxHighlight()
+
+const whiteGrid = document.getElementById('whiteGrid')
+whiteGrid.checked = true
+whiteGrid.onchange = () => updateScreen = true
 
 const cvs = document.getElementById('cvs')
 const ctx = cvs.getContext('2d')
@@ -151,7 +169,9 @@ const settingsButton = document.getElementById('settingsButton')
 const settings = document.getElementById('settings')
 const settingClose = document.getElementById('settingClose')
 const settingColor = document.getElementById('settingColor')
+const bgColor = document.getElementById('bgColor')
 const settingColorText = document.getElementById('settingColorText')
+const bgText = document.getElementById('bgText')
 const randomBrushContain = document.getElementById('randomBrushContain')
 const randomBrush = document.getElementById('randomBrush')
 const defaultBrush = document.getElementById('defaultBrush')
@@ -186,6 +206,7 @@ const changelogSection = document.getElementById('changelogSection')
 const helpSplash = document.getElementById('helpSplash')
 const helpSection = document.getElementById('helpSection')
 const openSplash = document.getElementById('openSplash')
+const details = document.getElementById('details')
 
 openSplash.onmousedown = () => splash.classList.remove('closed')
 
@@ -218,11 +239,13 @@ centerSplash.onmousedown = () => {
 
     const tip = document.createElement('div')
     const options = [
-        'To create a batch of shapes with the same colour, simply use the "Save Default Colour" button. You can customise this feature in the settings.',
+        'To create a batch of shapes with the same colour, simply press the save icon next to the colour selector.',
         'Tired of the copying templates for multiple shapes? Select the "Set template as default" button for an automatic assignment.',
         'You can ask for advanced help by typing your query into CanvasCraft\'s homepage.',
+        'Hover over anything and help assistant will explain it. You can disable it by pressing the question mark at the top-left of the screen.',
+        'Properties are an easy way to store specific details about a shape. You can use the feature in a variety of ways, from designing game worlds to simply annotating shapes.'
     ]
-    tip.textContent = 'Pro-tip: ' + options[Math.floor(Math.random() * options.length)]
+    tip.innerHTML = '<b>Pro-tip!</b> ' + options[Math.floor(Math.random() * options.length)]
     tip.style.color = '#fb0'
     popupChoice.appendChild(tip)
 }
@@ -349,10 +372,35 @@ randomBrush.checked = true
 defaultBrush.checked = false
 
 // Display the default colour in settings
+makeColorPick(settingColor, settingColorText, 'Choose your default colour', defaultColor, () => {
+    const r = defaultColor[0] * .3
+    const g = defaultColor[1] * .59
+    const b = defaultColor[2] * .11
+    if (r + g + b < 128) settingColorText.className = 'light'
+    else settingColorText.className = ''
+})
 const colorString = 'rgb('+defaultColor[0]+','+defaultColor[1]+','+defaultColor[2]+')'
-settingColor.onmousedown = () => chooseDefaultColor()
 settingColor.style.backgroundColor = colorString
 settingColorText.textContent = colorString
+
+// Display the default background colour in settings
+makeColorPick(bgColor, bgText, 'Change the background colour', backgroundColor, () => {
+    const r = backgroundColor[0] * .3
+    const g = backgroundColor[1] * .59
+    const b = backgroundColor[2] * .11
+    if (r + g + b < 128) {
+        bgText.className = 'light'
+        whiteGrid.checked = true
+    }
+    else {
+        bgText.className = ''
+        whiteGrid.checked = false
+    }
+})
+const bgColorString = 'rgb('+backgroundColor[0]+','+backgroundColor[1]+','+backgroundColor[2]+')'
+bgColor.style.backgroundColor = bgColorString
+bgText.textContent = bgColorString
+bgText.className = 'light'
 
 popup.onmousedown = e => {if (e.target.id == 'popBackground') popup.classList.remove('open')}
 
@@ -456,6 +504,9 @@ cvs.onwheel = e => mouseScroll(e)
 cvs.onscroll = e => mouseScroll(e)
 function mouseMove(e, mouseUp) {
     updateScreen = true
+
+    calcDetails()
+
     if (m.press) {
         const pos = world(m.x, m.y)
 
@@ -509,12 +560,30 @@ cvs.onmousemove = e => {
     mouseMove(e)
     mousePos(e)
 }
+cvs.ontouchmove = e => {
+    if (!m.x && !m.y) mousePos(e)
+    mouseMove(e)
+    mousePos(e)
+
+    if (m.rightClick) {
+        const dist = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY)
+        mouseScroll({deltaY: dist})
+    }
+}
 cvs.oncontextmenu = e => e.preventDefault()
 cvs.onmousedown = e => {
     m.rightClick = e.button > 0
     m.press = true
     mousePos(e)
 }
+cvs.ontouchstart = e => {
+    m.rightClick = e.touches.length == 2
+    m.press = true
+    mousePos(e)
+}
+
 function mouseUp(e) {
     mouseMove(e, true)
 
@@ -547,7 +616,12 @@ function mouseUp(e) {
 }
 cvs.onmouseup = e => mouseUp(e)
 cvs.onmouseleave = e => mouseUp(e)
+cvs.ontouchend = e => mouseUp(e)
+
 new ResizeObserver(resize).observe(cvs)
 onresize = () => resize()
 resize()
+scale = (cvs.width + cvs.height) / 50
 loop()
+
+onload = () => scrollTo(0, 0)

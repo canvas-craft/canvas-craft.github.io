@@ -30,9 +30,12 @@ class Shape {
 
         this.property = defaultProperty
 
-        const rand = () => {return Math.floor(Math.random() * 255)}
-        if (randomBrush.checked) this.color = [rand(), rand(), rand()]
-        else this.color = [defaultColor[0], defaultColor[1], defaultColor[2]]
+        if (this.line) this.color = [lineColor[0], lineColor[1], lineColor[2]]
+        else {
+            const rand = () => {return Math.floor(Math.random() * 255)}
+            if (randomBrush.checked) this.color = [rand(), rand(), rand()]
+            else this.color = [defaultColor[0], defaultColor[1], defaultColor[2]]
+        }
 
         this.activeRemix = 0
         this.activePreset = defaultTemplate
@@ -95,14 +98,8 @@ class Shape {
 
     hideSelf() {
         m.press = false
-        if (this.hidden) {
-            this.hidden = false
-            this.div.state.textContent = ''
-        }
-        else {
-            this.hidden = true
-            this.div.state.textContent = '/'
-        }
+        if (this.hidden) this.hidden = false
+        else this.hidden = true
     }
 
     addRemix(code, i) {
@@ -119,7 +116,7 @@ class Shape {
         // HOVER OUTLINE
         const range = scale
 
-        const hoverThin = this.line && (
+        const hoverThin = this.line && (!this.w || !this.h) && (
             m.x > pos.x - range && m.x < pos.x + this.w * scale + range &&
             m.y > pos.y - range && m.y < pos.y + this.h * scale + range)
 
@@ -127,7 +124,9 @@ class Shape {
             m.y > pos.y && m.y < pos.y + this.h * scale
 
         this.hover -= this.outlineSpeed
+        const mouseOnCanvas = m.x > 0 && m.y > 0 && m.x < cvs.width && m.y < cvs.height
         const hoverReady =
+            mouseOnCanvas &&
             !m.creation && !m.rightClick &&
             !m.movingShape && !hoveringShorthand &&
             (hoverNorm || hoverThin)
@@ -194,11 +193,11 @@ class Shape {
                         shapeIsHovered = this
                         func()
                     }
-                    BOX.color = 'rgb(0, 255, 200, ' + progress + ')'
+                    BOX.color = 'rgb(255,255,255,'+progress+')'
                     const grow = 1.1
                     sh *= grow
                 }
-                else BOX.color = 'rgb(255, 255, 255, ' + progress + ')'
+                else BOX.color = 'rgb(220,220,220,'+progress+')'
 
                 BOX.x = x - sh / 2
                 BOX.y = y - sh / 2
@@ -396,15 +395,18 @@ class Shape {
 
     updateDiv() {
         this.div.shapeName.style.color = STAT_SELECTION_COLOR
+
+        if (this.hidden) this.div.buttonHide.style.backgroundColor = STAT_BUTTON_SELECTION_COLOR
+        else this.div.buttonHide.style.backgroundColor = ''
+
         this.div.buttonUp.style.backgroundColor = STAT_BUTTON_SELECTION_COLOR
         this.div.buttonDown.style.backgroundColor = STAT_BUTTON_SELECTION_COLOR
 
-        const str = this.hidden ? '/' : ''
-        this.div.state.textContent = str
+        this.div.state.textContent = ''
         if ((!this.line && (!this.w || !this.h)) ||
             isNaN(this.x) || isNaN(this.y) ||
             isNaN(this.w) || isNaN(this.h))
-            this.div.state.textContent = '* ' + str
+            this.div.state.textContent = '*'
 
         applyInfoToShapePanel(this.div)
     }
@@ -419,6 +421,10 @@ class Shape {
             ctx.fillStyle = box.color
             ctx.fillRect(box.x, box.y, box.s, box.s)
             ctx.drawImage(icons[box.icon], box.x + pad, box.y + pad, imgSize, imgSize)
+
+            ctx.strokeStyle = '#000'
+            ctx.lineWidth = 1.5
+            ctx.strokeRect(box.x, box.y, box.s, box.s)
         }
     }
 }

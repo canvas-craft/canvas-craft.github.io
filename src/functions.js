@@ -1,5 +1,85 @@
 'use strict'
 
+function calcDetails() {
+    const pos = world(m.x, m.y)
+    details.textContent =
+        layerDiv.children[selectedLayer].name.value + ', ' +
+        Math.round(pos.x) + ', ' +
+        Math.round(pos.y)
+}
+
+function makeColorPick(button, div, message, color, command) {
+    button.onmousedown = () => {
+        popup.classList.add('open')
+        popupText.textContent = message
+        popupChoice.innerHTML = ''
+
+        const chosenColor = document.createElement('div')
+        chosenColor.className = 'colorPick'
+        popupChoice.appendChild(chosenColor)
+
+        const setBackgroundColor = () => {
+            const colorString = 'rgb('+Number(r.value)+','+Number(g.value)+','+Number(b.value)+')'
+            chosenColor.style.backgroundColor = colorString
+        }
+
+        const rgb = document.createElement('div')
+        rgb.className = 'inputContainer'
+        const r = document.createElement('input')
+        const g = document.createElement('input')
+        const b = document.createElement('input')
+        r.style.backgroundColor = '#111'
+        g.style.backgroundColor = '#111'
+        b.style.backgroundColor = '#111'
+        r.placeholder = 'Red'
+        g.placeholder = 'Green'
+        b.placeholder = 'Blue'
+        if (color[0]) r.value = color[0]
+        if (color[1]) g.value = color[1]
+        if (color[2]) b.value = color[2]
+
+        const restrict = (val, goal) => {
+            const lastChar = val.value.slice(-1)
+            if (lastChar == ' ') goal.focus()
+            val.value = val.value.replace(/\D/g, '')
+
+            if (val.value.length > 3) {
+                val.value = val.value.slice(0, -1)
+                goal.value = lastChar
+                goal.focus()
+            }
+            setBackgroundColor(chosenColor)
+        }
+        r.oninput = () => restrict(r, g)
+        g.oninput = () => restrict(g, b)
+        b.oninput = () => restrict(b, r)
+        rgb.appendChild(r)
+        rgb.appendChild(g)
+        rgb.appendChild(b)
+        popupChoice.appendChild(rgb)
+
+        setBackgroundColor(chosenColor)
+
+        const ok = document.createElement('button')
+        ok.textContent = 'Okay'
+        ok.onmousedown = () => {
+            updateScreen = true
+            popup.classList.remove('open')
+
+            color[0] = Number(r.value)
+            color[1] = Number(g.value)
+            color[2] = Number(b.value)
+
+            command()
+
+            const str = 'rgb('+Number(r.value)+','+Number(g.value)+','+Number(b.value)+')'
+            button.style.backgroundColor = str
+            div.textContent = str
+        }
+        popupChoice.appendChild(ok)
+    }
+}
+
 function reSyntaxHighlight() {
     spans = document.getElementsByClassName('code')
     for (let i = 0; i < spans.length; i ++) {
@@ -112,7 +192,7 @@ function generateFinalImage() {
     canvas.height = Y2 - Y
 
     if (!transparentBg.checked) {
-        context.fillStyle = '#fff'
+        context.fillStyle = 'rgb('+backgroundColor[0]+','+backgroundColor[1]+','+backgroundColor[2]+')'
         context.fillRect(0, 0, canvas.width, canvas.height)
     }
 
@@ -140,75 +220,6 @@ function generateFinalImage() {
         link.href = canvas.toDataURL()
         link.click()
     }
-}
-
-function chooseDefaultColor() {
-    popup.classList.add('open')
-    popupText.textContent = 'Choose your default colour'
-    popupChoice.innerHTML = ''
-
-    const chosenColor = document.createElement('div')
-    chosenColor.className = 'colorPick'
-    popupChoice.appendChild(chosenColor)
-
-    const setBackgroundColor = () => {
-        const colorString = 'rgb('+Number(r.value)+','+Number(g.value)+','+Number(b.value)+')'
-        chosenColor.style.backgroundColor = colorString
-    }
-
-    const rgb = document.createElement('div')
-    rgb.className = 'inputContainer'
-    const r = document.createElement('input')
-    const g = document.createElement('input')
-    const b = document.createElement('input')
-    r.style.backgroundColor = '#111'
-    g.style.backgroundColor = '#111'
-    b.style.backgroundColor = '#111'
-    r.placeholder = 'Red'
-    g.placeholder = 'Green'
-    b.placeholder = 'Blue'
-    r.value = defaultColor[0]
-    g.value = defaultColor[1]
-    b.value = defaultColor[2]
-    const restrict = val => {
-        val.value = val.value.replace(/\D/g, '')
-        if (Number(val.value) > 255) val.value = 255
-        setBackgroundColor(chosenColor)
-    }
-    r.oninput = () => restrict(r)
-    g.oninput = () => restrict(g)
-    b.oninput = () => restrict(b)
-    rgb.appendChild(r)
-    rgb.appendChild(g)
-    rgb.appendChild(b)
-    popupChoice.appendChild(rgb)
-
-    setBackgroundColor(chosenColor)
-
-    const setColor = () => {
-        const colorString = 'rgb('+defaultColor[0]+','+defaultColor[1]+','+defaultColor[2]+')'
-        settingColor.style.backgroundColor = colorString
-        settingColorText.textContent = colorString
-
-        const r = defaultColor[0] * .3
-        const g = defaultColor[1] * .59
-        const b = defaultColor[2] * .11
-        if (r + g + b < 128) settingColorText.className = 'light'
-        else settingColorText.className = ''
-    }
-
-    const ok = document.createElement('button')
-    ok.textContent = 'Okay'
-    ok.onmousedown = () => {
-        updateScreen = true
-        popup.classList.remove('open')
-        defaultColor[0] = Number(r.value)
-        defaultColor[1] = Number(g.value)
-        defaultColor[2] = Number(b.value)
-
-        setColor()
-    }
-    popupChoice.appendChild(ok)
 }
 
 function syntaxHighlightJavaScriptCode(code) {
@@ -284,6 +295,7 @@ function selectThisLayer(passkey, makingNewShape = false) {
     const head = document.createElement('h1')
     head.className = 'center wide'
     head.textContent = layer.name.value
+    calcDetails()
     basenavContent.appendChild(head)
 
     const contain = document.createElement('div')
@@ -335,8 +347,8 @@ function selectThisLayer(passkey, makingNewShape = false) {
         const moveY = document.createElement('input')
         moveX.className = 'wide'
         moveY.className = 'wide'
-        moveX.placeholder = 'X coordinate'
-        moveY.placeholder = 'Y coordinate'
+        moveX.placeholder = 'X pixel'
+        moveY.placeholder = 'Y pixel'
         moveX.style.backgroundColor = '#111'
         moveY.style.backgroundColor = '#111'
         transform.appendChild(moveX)
@@ -489,6 +501,63 @@ function selectThisLayer(passkey, makingNewShape = false) {
         popupChoice.appendChild(holder)
     }
     basenavContent.appendChild(deleteLayer)
+
+    // Subheading
+    const h3 = document.createElement('h3')
+    h3.className = 'center'
+    h3.textContent = 'Split Layer'
+    basenavContent.appendChild(h3)
+
+    const div1 = document.createElement('div')
+    div1.textContent = 'Split the layer at a selected shape. Your selection will be included in the split.'
+    const split = document.createElement('button')
+    split.textContent = 'Select a Shape'
+    split.className = 'wide'
+    split.onmouseover = () => helpChange('splitLayer')
+    split.onmousedown = () => {
+        popup.classList.add('open')
+        popupText.textContent = 'Select a shape to split the layer at'
+        popupChoice.innerHTML = ''
+
+        for (let i = 0; i < layers[selectedLayer].arr.length; i ++) {
+            const shape = layers[selectedLayer].arr[i]
+            const name = document.createElement('button')
+            name.textContent = shape.div.shapeName.value
+
+            name.onmousedown = () => {
+                popup.classList.remove('open')
+
+                // Get contents of this layer starting from the selected shape
+                const contents = []
+                for (let j = i; j < layers[selectedLayer].arr.length; j ++)
+                    contents.push(layers[selectedLayer].arr[j])
+
+                // Remove from old layer array
+                layers[selectedLayer].arr.splice(-contents.length)
+
+                // Create new layer
+                addNewLayer(selectedLayer + 1)
+                deselectAll()
+
+                // Transfer contents to new layer
+                for (let j = 0; j < contents.length; j ++) {
+                    const shape_ = contents[j]
+
+                    // Add to layer array
+                    shape_.layer = selectedLayer
+                    layers[selectedLayer].arr.push(shape_)
+
+                    // Reposition in side panel
+                    layerDiv.children[selectedLayer].contents.appendChild(shape_.div)
+                }
+            }
+
+            popupChoice.appendChild(name)
+        }
+    }
+
+    basenavContent.appendChild(div1)
+    basenavContent.appendChild(split)
 }
 
 function addNewLayer(insertIndex) {
@@ -525,6 +594,7 @@ function addNewLayer(insertIndex) {
     // Select layer
     name.onmouseover = () => helpChange('layerTitle')
     name.onmousedown = () => selectThisLayer(dic.passkey)
+    name.oninput = () => selectThisLayer(dic.passkey, false)
 
     // LAYER OPTIONS
     collapse.state = 'small'
@@ -712,7 +782,7 @@ function applyInfoToShapePanel(div, update = false) {
     const currentLayer = document.createElement('button')
     currentLayer.className = 'wide'
     const layerName = layerDiv.children[div.shape.layer].name.value
-    currentLayer.textContent = 'Layer: ' + layerName
+    currentLayer.textContent = layerName
     currentLayer.onmouseover = () => helpChange('currentShapeLayer')
     currentLayer.onmousedown = () => {
         popupChoice.innerHTML = ''
@@ -789,12 +859,18 @@ function applyInfoToShapePanel(div, update = false) {
 
     if (div.shape.imageMode) {
         // Subheading
-        const image = document.createElement('h3')
-        image.textContent = 'Image'
-        image.className = 'center'
-        basenavContent.appendChild(image)
+        const imageHead = document.createElement('h3')
+        imageHead.textContent = 'Image'
+        imageHead.className = 'center'
+        basenavContent.appendChild(imageHead)
 
         const dim = document.createElement('div')
+        dim.className = 'dim'
+        if (div.shape.image) dim.innerHTML =
+            div.shape.image.name + ' ~ ' +
+            div.shape.image.width + ' &times; ' +
+            div.shape.image.height
+
         const scaleAmt = document.createElement('input')
 
         // Name box
@@ -820,9 +896,10 @@ function applyInfoToShapePanel(div, update = false) {
                     div.shape.image = image
                     div.shape.image.width = image.width
                     div.shape.image.height = image.height
-                    dim.innerHTML = image.width + ' &times; ' + image.height
+                    div.shape.image.name = file.name
+                    dim.innerHTML = file.name + ' ~ ' + image.width + ' &times; ' + image.height
 
-                    div.shape.imageScale = div.shape.h / image.height
+                    div.shape.imageScale = Math.min(div.shape.w / image.width, div.shape.h / image.height)
                     scaleAmt.value = div.shape.imageScale
 
                     div.shape.drawOnShape()
@@ -949,39 +1026,42 @@ function applyInfoToShapePanel(div, update = false) {
         colorContain.appendChild(color)
 
         // Set colour as default
-        const defaultColorButton = document.createElement('button')
-        defaultColorButton.textContent = 'Save Default Colour'
-        defaultColorButton.className = 'wide'
-        defaultColorButton.id = 'small'
-        defaultColorButton.onmouseover = () => helpChange('defaultColorButton')
-        defaultColorButton.onmousedown = () => {
-            popup.classList.add('open')
-            popupText.textContent = 'Do you want to set this colour as default?'
-            popupChoice.innerHTML = ''
+        if (!div.shape.line) {
+            const defaultColorButton = document.createElement('button')
+            const defaultColorImg = document.createElement('img')
+            defaultColorImg.src = 'src/color.svg'
+            defaultColorButton.appendChild(defaultColorImg)
+            defaultColorButton.className = 'tiny'
+            defaultColorButton.onmouseover = () => helpChange('defaultColorButton')
+            defaultColorButton.onmousedown = () => {
+                popup.classList.add('open')
+                popupText.textContent = 'Do you want to set this colour as default?'
+                popupChoice.innerHTML = ''
 
-            const cont = document.createElement('div')
-            cont.className = 'inputContainer'
+                const cont = document.createElement('div')
+                cont.className = 'inputContainer'
 
-            const yes = document.createElement('button')
-            yes.textContent = 'Yes'
-            yes.onmousedown = () => {
-                popup.classList.remove('open')
-                defaultColor = [div.shape.color[0], div.shape.color[1], div.shape.color[2]]
-                settingColor.style.backgroundColor = color.style.backgroundColor
-                randomBrushContain.classList.remove('checked')
-                randomBrush.checked = false
-                defaultBrush.checked = true
+                const yes = document.createElement('button')
+                yes.textContent = 'Yes'
+                yes.onmousedown = () => {
+                    popup.classList.remove('open')
+                    defaultColor = [div.shape.color[0], div.shape.color[1], div.shape.color[2]]
+                    settingColor.style.backgroundColor = color.style.backgroundColor
+                    randomBrushContain.classList.remove('checked')
+                    randomBrush.checked = false
+                    defaultBrush.checked = true
+                }
+                cont.appendChild(yes)
+
+                const no = document.createElement('button')
+                no.textContent = 'No'
+                no.onmousedown = () => popup.classList.remove('open')
+                cont.appendChild(no)
+
+                popupChoice.appendChild(cont)
             }
-            cont.appendChild(yes)
-
-            const no = document.createElement('button')
-            no.textContent = 'No'
-            no.onmousedown = () => popup.classList.remove('open')
-            cont.appendChild(no)
-
-            popupChoice.appendChild(cont)
+            colorContain.appendChild(defaultColorButton)
         }
-        colorContain.appendChild(defaultColorButton)
 
         const setMainPick = () => {
             const colorString = 'rgb('+div.shape.color[0]+','+div.shape.color[1]+','+div.shape.color[2]+')'
@@ -997,63 +1077,15 @@ function applyInfoToShapePanel(div, update = false) {
         setMainPick()
 
         color.onmouseover = () => helpChange('colorPick')
-        color.onmousedown = () => {
-            popup.classList.add('open')
-            popupText.textContent = 'Choose a colour for this shape'
-            popupChoice.innerHTML = ''
+        makeColorPick(color, colorText, 'Choose a colour for this shape', div.shape.color, () => {
+            if (div.shape.line)
+                lineColor = [div.shape.color[0], div.shape.color[1], div.shape.color[2]]
 
-            const chosenColor = document.createElement('div')
-            chosenColor.className = 'colorPick'
-            popupChoice.appendChild(chosenColor)
+            else if (div.shape.remixes[div.shape.activeRemix].code == codes[0].code)
+                div.shape.drawOnShape()
 
-            const setBackgroundColor = () => {
-                const colorString = 'rgb('+Number(r.value)+','+Number(g.value)+','+Number(b.value)+')'
-                chosenColor.style.backgroundColor = colorString
-            }
-
-            const rgb = document.createElement('div')
-            rgb.className = 'inputContainer'
-            const r = document.createElement('input')
-            const g = document.createElement('input')
-            const b = document.createElement('input')
-            r.style.backgroundColor = '#111'
-            g.style.backgroundColor = '#111'
-            b.style.backgroundColor = '#111'
-            r.placeholder = 'Red'
-            g.placeholder = 'Green'
-            b.placeholder = 'Blue'
-            r.value = div.shape.color[0]
-            g.value = div.shape.color[1]
-            b.value = div.shape.color[2]
-            const restrict = val => {
-                val.value = val.value.replace(/\D/g, '')
-                if (Number(val.value) > 255) val.value = 255
-                setBackgroundColor(chosenColor)
-            }
-            r.oninput = () => restrict(r)
-            g.oninput = () => restrict(g)
-            b.oninput = () => restrict(b)
-            rgb.appendChild(r)
-            rgb.appendChild(g)
-            rgb.appendChild(b)
-            popupChoice.appendChild(rgb)
-
-            setBackgroundColor(chosenColor)
-
-            const ok = document.createElement('button')
-            ok.textContent = 'Okay'
-            ok.onmousedown = () => {
-                updateScreen = true
-                popup.classList.remove('open')
-                div.shape.color[0] = Number(r.value)
-                div.shape.color[1] = Number(g.value)
-                div.shape.color[2] = Number(b.value)
-                if (div.shape.remixes[div.shape.activeRemix].code == codes[0].code)
-                    div.shape.drawOnShape()
-                setMainPick()
-            }
-            popupChoice.appendChild(ok)
-        }
+            setMainPick()
+        })
         basenavContent.appendChild(colorContain)
 
         if (!div.shape.line) {
@@ -1062,8 +1094,7 @@ function applyInfoToShapePanel(div, update = false) {
             presets.className = 'inputContainer'
             const presetListButton = document.createElement('button')
             presetListButton.className = 'wide'
-            presetListButton.style.backgroundColor = 'var(--notice)'
-            presetListButton.textContent = 'Template: ' + codes[div.shape.activePreset].name
+            presetListButton.textContent = codes[div.shape.activePreset].name
             presetListButton.onmouseover = () => helpChange('presetList')
             presetListButton.onmousedown = () => {
                 popup.classList.add('open')
@@ -1086,15 +1117,63 @@ function applyInfoToShapePanel(div, update = false) {
             }
             presets.appendChild(presetListButton)
 
+            // Save preset as default
+            const asDefault = document.createElement('button')
+            const asDefaultImg = document.createElement('img')
+            asDefaultImg.src = 'src/default.svg'
+            asDefault.appendChild(asDefaultImg)
+            asDefault.className = 'tiny'
+            asDefault.onmouseover = () => helpChange('asDefault')
+            asDefault.onmousedown = () => {
+                popup.classList.add('open')
+
+                const name = codes[div.shape.activePreset].name
+                popupText.textContent = 'Set "'+name+'" as Default'
+                popupChoice.innerHTML = ''
+
+                // Confirm text
+                const confirm = document.createElement('div')
+                confirm.innerHTML = 'From now on, all shapes will be given the <span class=code>'+name +'</span> template by default.'
+                popupChoice.appendChild(confirm)
+
+                const opts = document.createElement('div')
+                opts.className = 'inputContainer'
+
+                // Confirm
+                const ok = document.createElement('button')
+                ok.className = 'wide'
+                ok.textContent = 'Confirm'
+                ok.onmousedown = () => {
+                    defaultTemplate = div.shape.activePreset
+                    popup.classList.remove('open')
+                }
+                opts.appendChild(ok)
+
+                // Cancel
+                const cancel = document.createElement('button')
+                cancel.className = 'wide'
+                cancel.textContent = 'Cancel'
+                cancel.onmousedown = () => popup.classList.remove('open')
+                opts.appendChild(cancel)
+
+                popupChoice.appendChild(opts)
+            }
+
+            // Remix list
             const remixListButton = document.createElement('button')
-            remixListButton.className = 'wide'
-            remixListButton.textContent = 'Remix: ' + div.shape.remixes[div.shape.activeRemix].name
+            remixListButton.className = 'tiny'
+            const remixListImg = document.createElement('img')
+            remixListImg.src = 'src/list.svg'
+            remixListButton.appendChild(remixListImg)
             remixListButton.onmouseover = () => helpChange('remixList')
             remixListButton.onmousedown = () => {
                 popup.classList.add('open')
                 popupChoice.innerHTML = ''
                 popupText.textContent = 'Choose one of your remixes'
 
+                const explain = document.createElement('div')
+                explain.textContent = 'The options below represent all the remixes of the shape. All past code snippets can be retrieved here.'
+                popupChoice.appendChild(explain)
                 for (let i = 0; i < div.shape.remixes.length; i ++) {
                     const code = div.shape.remixes[i]
                     const button = document.createElement('button')
@@ -1110,45 +1189,11 @@ function applyInfoToShapePanel(div, update = false) {
                     popupChoice.appendChild(button)
                 }
             }
+
+            presets.appendChild(asDefault)
             presets.appendChild(remixListButton)
 
             basenavContent.appendChild(presets)
-
-            // Save preset as default
-            const asDefault = document.createElement('button')
-            const name = codes[div.shape.activePreset].name
-            asDefault.textContent = 'Set "' + name + '" as default'
-            asDefault.className = 'wide'
-            asDefault.onmouseover = () => helpChange('asDefault')
-            asDefault.onmousedown = () => {
-                popup.classList.add('open')
-
-                popupText.textContent = 'Set "'+name+'" as Default'
-                popupChoice.innerHTML = ''
-
-                // Confirm text
-                const confirm = document.createElement('div')
-                confirm.innerHTML = 'From now on, all shapes will be given the <span class=code>'+name +'</span> template by default.'
-                popupChoice.appendChild(confirm)
-
-                // Confirm
-                const ok = document.createElement('button')
-                ok.className = 'wide'
-                ok.textContent = 'Confirm'
-                ok.onmousedown = () => {
-                    defaultTemplate = div.shape.activePreset
-                    popup.classList.remove('open')
-                }
-                popupChoice.appendChild(ok)
-
-                // Cancel
-                const cancel = document.createElement('button')
-                cancel.className = 'wide'
-                cancel.textContent = 'Cancel'
-                cancel.onmousedown = () => popup.classList.remove('open')
-                popupChoice.appendChild(cancel)
-            }
-            basenavContent.appendChild(asDefault)
 
             // Overall code box
             const codeContain = document.createElement('div')
@@ -1463,6 +1508,7 @@ function applyInfoToShapePanel(div, update = false) {
 
 function createShape(shape) {
     const layer = layers[shape.layer].arr
+    m.selection = 0
     // Add shape to end of layer
     layer.push(shape)
 
@@ -1483,7 +1529,7 @@ function createShape(shape) {
         m.selection = shape
         updateScreen = true
 
-        applyInfoToShapePanel(div)
+        applyInfoToShapePanel(div, true)
     }
 
     const shapeName = document.createElement('input')
@@ -1512,6 +1558,14 @@ function createShape(shape) {
     // BUTTON OPTIONS
     const buttons = document.createElement('div')
     buttons.className = 'buttons'
+
+    const hide = document.createElement('button')
+    const hideIcon = document.createElement('img')
+    hideIcon.src = 'src/hideW.svg'
+    hideIcon.id = 'up'
+    hide.appendChild(hideIcon)
+    hide.className = 'smallButton'
+    hide.onmousedown = () => shape.hideSelf()
 
     const up = document.createElement('button')
     const upIcon = document.createElement('img')
@@ -1569,9 +1623,11 @@ function createShape(shape) {
         }
     }
 
+    div.buttonHide = hide
     div.buttonUp = up
     div.buttonDown = down
 
+    buttons.appendChild(hide)
     buttons.appendChild(up)
     buttons.appendChild(down)
     div.appendChild(buttons)
