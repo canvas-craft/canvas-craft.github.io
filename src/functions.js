@@ -1080,8 +1080,6 @@ function applyInfoToShapePanel(div, update = false) {
         makeColorPick(color, colorText, 'Choose a colour for this shape', div.shape.color, () => {
             if (div.shape.line)
                 lineColor = [div.shape.color[0], div.shape.color[1], div.shape.color[2]]
-
-            // else if (div.shape.remixes[div.shape.activeRemix].code == codes[0].code)
             div.shape.drawOnShape()
 
             setMainPick()

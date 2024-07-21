@@ -547,8 +547,7 @@ function mouseMove(e, mouseUp) {
         else if (m.rightClick) {
             const old = {x: m.x, y: m.y}
             mousePos(e)
-            // camX -= (m.x - old.x) / scale
-            // camY -= (m.y - old.y) / scale
+
             if (!mouseUp) {
                 panSpeedX = (m.x - old.x) / scale
                 panSpeedY = (m.y - old.y) / scale
