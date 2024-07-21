@@ -47,7 +47,25 @@ function loop() {
     requestAnimationFrame(loop)
     time += 1
 
-    if ((m.creation || m.movingShape) && !cameraLock.locked) {
+    if (scrollSpeed) {
+        scale -= scale * scrollSpeed
+        scrollSpeed *= ZOOM_FRICTION
+        if (Math.abs(scrollSpeed) < .01) scrollSpeed = 0
+    }
+
+    if (panSpeedX) {
+        camX -= panSpeedX
+        panSpeedX *= ZOOM_FRICTION
+        if (Math.abs(panSpeedX) < .01) panSpeedX = 0
+    }
+
+    if (panSpeedY) {
+        camY -= panSpeedY
+        panSpeedY *= ZOOM_FRICTION
+        if (Math.abs(panSpeedY) < .01) panSpeedY = 0
+    }
+
+    if (((m.creation || m.movingShape) && !cameraLock.locked)) {
         const gap = (cvs.width + cvs.height) / 20
         const speed = .05 / scale
         if (m.x < gap) camX += (m.x - gap) * speed
@@ -56,7 +74,7 @@ function loop() {
         if (m.y > cvs.height - gap) camY += (m.y - (cvs.height - gap)) * speed
     }
 
-    else if (!updateScreen) return
+    else if (!updateScreen && !panSpeedX && !panSpeedY && !scrollSpeed) return
 
     ctx.imageSmoothingEnabled = false
 
@@ -148,6 +166,7 @@ let drawIterations = 10000
 let defaultColor = [50, 230, 90]
 let backgroundColor = [0, 0, 0]
 let lineColor = [0, 255, 0]
+let pinchZoom = 0
 
 let spans = []
 reSyntaxHighlight()
@@ -486,14 +505,23 @@ newIcon('remove')
 
 addNewLayer(0)
 
+let panSpeedX = 0
+let panSpeedY = 0
+let scrollSpeed = 0
 function mouseScroll(e) {
     const max = .1
-    let speed = e.deltaY * .01
+    let speed = e.deltaY * .005
     if (speed > max) speed = max
     if (speed < -max) speed = -max
-    scale -= scale * speed
-    if (scale <= .5) scale = .5
-    else if (scale >= 500) scale = 500
+    scrollSpeed = speed
+    if (scale <= .5) {
+        scale = .5
+        scrollSpeed *= .1
+    }
+    else if (scale >= 500) {
+        scale = 500
+        scrollSpeed *= .1
+    }
     else {
         camX -= (m.x - cvs.width / 2) / scale * speed
         camY -= (m.y - cvs.height / 2) / scale * speed
@@ -519,8 +547,12 @@ function mouseMove(e, mouseUp) {
         else if (m.rightClick) {
             const old = {x: m.x, y: m.y}
             mousePos(e)
-            camX -= (m.x - old.x) / scale
-            camY -= (m.y - old.y) / scale
+            // camX -= (m.x - old.x) / scale
+            // camY -= (m.y - old.y) / scale
+            if (!mouseUp) {
+                panSpeedX = (m.x - old.x) / scale
+                panSpeedY = (m.y - old.y) / scale
+            }
         }
 
         else if (!m.creation) {
@@ -561,25 +593,21 @@ cvs.onmousemove = e => {
     mousePos(e)
 }
 cvs.ontouchmove = e => {
-    if (!m.x && !m.y) mousePos(e)
-    mouseMove(e)
-    mousePos(e)
+    if (!m.x && !m.y) mousePos(e.touches[0])
+    if (e.touches[0].identifier == startTouch) mouseMove(e.touches[0])
+    mousePos(e.touches[0])
 
     if (m.rightClick) {
-        const dist = Math.hypot(
+        const oldZoom = pinchZoom
+        pinchZoom = Math.hypot(
             e.touches[0].clientX - e.touches[1].clientX,
             e.touches[0].clientY - e.touches[1].clientY)
-        mouseScroll({deltaY: dist})
+        if (oldZoom) mouseScroll({deltaY: oldZoom - pinchZoom})
     }
 }
 cvs.oncontextmenu = e => e.preventDefault()
 cvs.onmousedown = e => {
     m.rightClick = e.button > 0
-    m.press = true
-    mousePos(e)
-}
-cvs.ontouchstart = e => {
-    m.rightClick = e.touches.length == 2
     m.press = true
     mousePos(e)
 }
@@ -616,7 +644,23 @@ function mouseUp(e) {
 }
 cvs.onmouseup = e => mouseUp(e)
 cvs.onmouseleave = e => mouseUp(e)
-cvs.ontouchend = e => mouseUp(e)
+
+let startTouch = 0
+cvs.ontouchstart = e => {
+    m.rightClick = e.touches.length >= 2
+    m.press = true
+    startTouch = e.touches[0].identifier
+    mousePos(e.touches[0])
+}
+
+function cancel(e) {
+    if (e.touches.length && e.touches[0].identifier != startTouch)
+        mouseUp(e.touches[1])
+    else mouseUp(e.touches[0])
+    pinchZoom = 0
+}
+cvs.ontouchend = e => cancel(e)
+cvs.ontouchcancel = e => cancel(e)
 
 new ResizeObserver(resize).observe(cvs)
 onresize = () => resize()

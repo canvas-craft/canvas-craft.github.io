@@ -8,3 +8,4 @@ const HOVER_COLOR = '#00f'
 const STAT_HOVER_COLOR = '#0fb'
 const NO_INFO = 'No information available.'
 const DEFAULT_LINE_THICK = 7
+const ZOOM_FRICTION = .8

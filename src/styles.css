@@ -34,10 +34,15 @@
 html {height: 100%}
 
 body {
+    padding: 0;
     margin: 0;
     font-family: font, sans-serif;
     background-color: #000;
+    width: 100%;
     height: 100%;
+    top: 0;
+    left: 0;
+    position: fixed;
     overflow: hidden;
     box-sizing: content-box;
     color: #fff
@@ -193,7 +198,7 @@ canvas {
     display: flex;
     flex-direction: column;
     width: 40%;
-    min-width: 450px;
+    min-width: 350px;
     flex: 1 0 auto;
     transition: .3s cubic-bezier(.6, 0, .4, 1);
     background-color: #000;
@@ -1283,7 +1288,7 @@ hr {
     to {transform: translateX(210%) translateY(-120%) scale(.4)}
 }
 
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 650px) {
     #text {
         width: 100%;
         left: 0;
