@@ -13,8 +13,11 @@ CanvasCraft is a unique online tool designed to allow creators to easily make im
 - 📱 Easily collaborate with others and share your work with the File Export feature, or tailor the UI to suit your needs.
 - 💡 Whether you're a coder, a digital artist, or are simply exploring different ways to create, CanvasCraft has been designed to bring your ideas to life.
 
-![canvasCraft](https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/a82f4be2-35d8-40a0-9fee-6d0a9f2d32fc)
+<kbd>
+<img src="https://github.com/user-attachments/assets/119bdd56-c2b3-4d79-806b-f8ecf00f4f9c" width="100%" />
+</kbd>
 
+\
 This project was initially created for the purpose of building complex game worlds, but has grown to give an advantage to creators of many skill levels. Let your imagination go wild! 💥
 
 ***
