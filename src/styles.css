@@ -1032,7 +1032,7 @@ h3.center {
     height: 100%;
     padding: 50px 10%;
     transition: .8s cubic-bezier(.66,0,.54,1);
-    background-color: #000;
+    background-color: #111;
     overflow: scroll;
 }
 

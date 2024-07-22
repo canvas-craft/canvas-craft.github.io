@@ -259,10 +259,10 @@ centerSplash.onmousedown = () => {
     const tip = document.createElement('div')
     const options = [
         'To create a batch of shapes with the same colour, simply press the save icon next to the colour selector.',
-        'Tired of the copying templates for multiple shapes? Select the "Set template as default" button for an automatic assignment.',
+        'Tired of the copying templates for multiple shapes? Press the "tick" icon for an automatic assignment.',
         'You can ask for advanced help by typing your query into CanvasCraft\'s homepage.',
         'Hover over anything and help assistant will explain it. You can disable it by pressing the question mark at the top-left of the screen.',
-        'Properties are an easy way to store specific details about a shape. You can use the feature in a variety of ways, from designing game worlds to simply annotating shapes.'
+        'Properties are an easy way to store specific details about a shape. You can use the feature in a variety of ways from designing game worlds to simply annotating.'
     ]
     tip.innerHTML = '<b>Pro-tip!</b> ' + options[Math.floor(Math.random() * options.length)]
     tip.style.color = '#fb0'

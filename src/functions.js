@@ -48,6 +48,9 @@ function makeColorPick(button, div, message, color, command) {
                 goal.value = lastChar
                 goal.focus()
             }
+
+            if (Number(val.value) > 255) val.value = '255'
+
             setBackgroundColor(chosenColor)
         }
         r.oninput = () => restrict(r, g)
