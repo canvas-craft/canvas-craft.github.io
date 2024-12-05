@@ -1,4 +1,29 @@
 <p align="center">
+    ⚠️⚠️⚠️ MASSIVE FEATURE UPDATE UNDERWAY! ⚠️⚠️⚠️
+</p>
+
+<p align="center">
+    Includes:
+      - Generative videos
+      - Generative audio
+      - Completely rewritten from scratch
+      - Procedurally placed world elements
+      - Shape materials
+      - Polygons
+      - Edit mode
+      - Text
+      - Filters
+      - Access every pixel and shape in the world with the code editor
+</p>
+
+<p align="center">
+    Estimated completion date: February-March 2025
+</p>
+
+\
+\
+\
+<p align="center">
   <img src="https://github.com/canvas-craft/canvas-craft.github.io/assets/169457495/93b63ef0-ed95-4401-a235-6e038dc3082e" width="200" />
 </p>
 
