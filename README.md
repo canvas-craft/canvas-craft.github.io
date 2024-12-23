@@ -13,7 +13,7 @@
       - Edit mode
       - Text
       - Filters
-      - Access every pixel and shape in the world with the code editor
+      - Full control with CanvasCraft API
 </p>
 
 <p align="center">
